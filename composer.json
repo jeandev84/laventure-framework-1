@@ -1,0 +1,16 @@
+{
+    "name": "laventure/framework",
+    "description": "MVC framework using php language for buiding web application",
+    "autoload": {
+        "psr-4": {
+            "Laventure\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "jeandev84",
+            "email": "jeandev84@yahoo.com"
+        }
+    ],
+    "require": {}
+}
