@@ -1,0 +1,20 @@
+<?php
+namespace Laventure\Component\Form;
+
+
+/**
+ * TypeMapper
+*/
+class FormRow
+{
+     /**
+      * @param string $name
+      * @param array $options
+      * @return object
+      * @throws \ReflectionException
+     */
+     public static function create(string $name, array $options = []): object
+     {
+          return (new \ReflectionClass($name))->newInstanceArgs($options);
+     }
+}

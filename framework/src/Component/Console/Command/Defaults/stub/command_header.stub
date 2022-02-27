@@ -1,0 +1,16 @@
+|=======================================================================================|
+|                                                                                       |
+|                WELCOME  TO LAVENTURE CONSOLE APPLICATION                              |
+|                                                                                       |
+|=======================================================================================|
+                         Available commands using terminal :
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+$ php bin/console command arg0 -arg=value -option1=value1 --option2=value2 -flag1 --flag2"
+
+Defaults commands:
+
+list                 List all available commands.
+-h or --help         Get command help example : $ php bin/console command -h"
+
+

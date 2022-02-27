@@ -1,0 +1,178 @@
+<?php
+namespace Laventure\Component\Database\Schema\Column;
+
+
+
+/**
+ * @Column
+*/
+class Column
+{
+
+      /**
+       * @var array
+      */
+      protected $params = [
+          'name'          => '',
+          'type'          => '',
+          'default'       => '',
+          'primaryKey'    => false,
+          'nullable'      => false,
+          'index'         => 'primary',
+          'collation'     => 'utf8_general_ci',
+          'comments'      => []
+      ];
+
+
+
+
+      /**
+        * @param array $params
+      */
+      public function __construct(array $params)
+      {
+           $this->params = array_merge($this->params, $params);
+      }
+
+
+
+
+      /**
+       * @param $key
+       * @param $value
+       * @return $this
+      */
+      public function withParam($key, $value): Column
+      {
+          $this->params[$key] = $value;
+
+          return $this;
+      }
+
+
+
+
+
+      /**
+       * Set nullable column
+       *
+       * @return self
+      */
+      public function nullable(): Column
+      {
+          return $this->withParam('nullable', true);
+      }
+
+
+
+
+      /**
+       * @return string
+      */
+      public function autoincrement()
+      {
+
+      }
+
+
+
+      /**
+       * @return string
+      */
+      public function defaultValue(): string
+      {
+          $default = $this->getParam('default');
+
+          if ($this->isNullable() && $default) {
+               return 'default null';
+          }elseif ($default) {
+               return sprintf('default "%s"', $default);
+          }else{
+               return 'not null';
+          }
+      }
+
+
+
+      /**
+       * @return string
+      */
+      public function typeString(): string
+      {
+           // $type = strtoupper($this->getParam('type'));
+           $type = strtolower($this->getParam('type'));
+           $length = $this->getParam('length');
+
+           if (\in_array($type, $this->getColumnTypesCanAssignValue()) && $length) {
+               return sprintf('%s(%s)', $type, $length);
+           }
+
+           return $type;
+      }
+
+
+
+
+      /**
+       * @return bool
+      */
+      protected function isNullable(): bool
+      {
+          return $this->compare('nullable', true);
+      }
+
+
+
+      /**
+       * add interphases
+       * If $this->collation('utf8_unicode'),
+       *
+       * @param string $collation
+       * @return Column
+      */
+      public function collation(string $collation): Column
+      {
+         return $this->withParam('collation', $collation);
+      }
+
+
+      /**
+       * @param $comment
+       * @return $this
+      */
+      public function comments($comment): Column
+      {
+          return $this->withParam('comments', $this->resolveComment($comment));
+      }
+
+
+
+     /**
+      * @param $comment
+      * @return string
+     */
+     protected function resolveComment($comment): string
+     {
+         return (string) (is_array($comment) ? join(', ', $comment) : $comment);
+     }
+
+
+     /**
+      * @param string $key
+      * @param mixed $value
+      * @return bool
+     */
+     protected function compare(string $key, $value): bool
+     {
+         return $this->getParam($key) === $value;
+     }
+
+
+     /**
+      * @return string[]
+     */
+     protected function getColumnTypesCanAssignValue(): array
+     {
+        return ['int', 'varchar', 'tinyint'];
+     }
+}

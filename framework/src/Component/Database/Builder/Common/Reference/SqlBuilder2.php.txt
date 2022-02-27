@@ -1,0 +1,279 @@
+<?php
+namespace Laventure\Component\Database\Builder\Common;
+
+
+
+use Laventure\Component\Database\Builder\Exception\SqlBuilderException;
+
+
+
+/**
+ * @SqlBuilder
+*/
+abstract class SqlBuilder
+{
+
+
+      /**
+       * @var string
+      */
+      protected $table = '';
+
+
+
+      /**
+       * @var string
+      */
+      protected $alias = '';
+
+
+
+
+      /**
+       * @var array
+      */
+      protected $where = [];
+
+
+
+
+      /**
+       * @var array
+      */
+      protected $parameters = [];
+
+
+
+
+      /**
+       * @var array
+      */
+      protected $prefixed = ["NOT"];
+
+
+
+
+      /**
+       * @param string $table
+       * @param string $alias
+       * @return $this
+      */
+      public function table(string $table, string $alias = ''): self
+      {
+          $this->table = $alias ? sprintf('%s %s', $table, $alias) : $table;
+          $this->alias = $alias;
+
+          return $this;
+      }
+
+
+
+
+      /**
+       * @param string $condition
+       * @return $this
+      */
+      public function where(string $condition): self
+      {
+           return $this->andWhere($condition);
+      }
+
+
+
+      /**
+       * @param string $condition
+       * @return self
+      */
+      public function andWhere(string $condition): self
+      {
+           $this->where["AND"][] = $condition;
+
+           return $this;
+      }
+
+
+
+
+      /**
+       * @param string $condition
+       * @return $this
+      */
+      public function orWhere(string $condition): self
+      {
+          $this->where["OR"][] = $condition;
+
+          return $this;
+      }
+
+
+     /**
+      * @param string $condition
+      * @return self
+     */
+     public function notWhere(string $condition): self
+     {
+          $this->where["NOT"][] = "$condition";
+
+          return $this;
+     }
+
+
+
+
+      /**
+       * @param $key
+       * @param $value
+       * @return $this
+      */
+      public function setParameter($key, $value): self
+      {
+           $this->parameters[$key] = $value;
+
+           return $this;
+      }
+
+
+
+
+      /**
+       * @param array $parameters
+       * @return self
+      */
+      public function setParameters(array $parameters): self
+      {
+          foreach ($parameters as $key => $value) {
+              $this->setParameter($key, $value);
+          }
+
+        /* $this->parameters = array_merge($this->parameters, $parameters); */
+
+           return $this;
+      }
+
+
+
+      /**
+       * @throws SqlBuilderException
+      */
+      protected function buildBaseSQL()
+      {
+          throw new SqlBuilderException(__METHOD__ . " must be implements.");
+      }
+
+
+
+      /**
+       * @return string
+      */
+      protected function buildConditionSQL(): string
+      {
+          if (! empty($this->where)) {
+
+               $sql  = ' WHERE ';
+               $key = key($this->where);
+
+               foreach ($this->where as $command => $conditions) {
+
+                    $prefix = '';
+
+                    if ($key !== $command) {
+                       $prefix = $command;
+                    }
+
+                    if (\in_array($command, $this->prefixed)){
+                         $prefix = next($this->where) ? "AND" : "";
+                    }
+
+                    $sql .= $this->buildConditions($command, $conditions, $prefix);
+               }
+
+               return $sql;
+
+          }
+
+          return '';
+      }
+
+
+
+      /**
+       * @param string $command
+       * @param array $conditions
+       * @param string $prefix
+       * @return string
+      */
+      private function buildConditions(string $command, array $conditions, string $prefix = ''): string
+      {
+          /*
+          $conditions = implode( " ". $command . " ", $conditions);
+
+          switch ($command) {
+              case "NOT":
+                   $conditions = $this->prependNotWheres($conditions);
+                  break;
+          }
+          */
+
+          /*
+          if (in_array($command, $this->prefixed)) {
+               $conditions = $this->prependNotWheres($conditions);
+          }else{
+              $conditions = implode( " ". $command . " ", $conditions);
+          }
+          */
+
+          $conditions = in_array($command, $this->prefixed) ? $this->prependNotWheres($conditions) : '';
+
+          /* return ($prefix ? " ". $prefix . " " : ''  ) . implode( $suffix. $command . " ", $conditions); */
+          return ($prefix ? " ". $prefix . " " : ''  ) . $conditions;
+      }
+
+
+      /**
+        * @param array $conditions
+        * @return string
+      */
+      protected function prependNotWheres(array $conditions): string
+      {
+           $arr = [];
+           foreach ($conditions as $condition) {
+               $arr[] = "NOT $condition";
+           }
+           return implode(" AND ", $arr);
+      }
+
+
+
+      /**
+       * @return string
+      */
+      protected function buildComplementSQL(): string
+      {
+           return '';
+      }
+
+
+
+      /**
+       * @return string
+       * @throws SqlBuilderException
+      */
+      public function getSQL(): string
+      {
+           return implode('', [
+                   $this->buildBaseSQL(),
+                   $this->buildConditionSQL(),
+                   $this->buildComplementSQL()
+           ]);
+      }
+
+
+
+     /**
+      * @return array
+     */
+     public function getParameters(): array
+     {
+        return $this->parameters;
+     }
+}

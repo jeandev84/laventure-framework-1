@@ -1,0 +1,48 @@
+<?php
+namespace Laventure\Component\Database\DataMapper\Example;
+
+
+use Laventure\Component\Database\DataMapper\EntityManagerInterface;
+
+/**
+ * @EntityManagerAdapter
+*/
+class EntityManagerAdapter
+{
+
+      /**
+       * @var EntityManagerInterface
+      */
+      protected $em;
+
+
+
+      /**
+       * @param EntityManagerInterface $em
+      */
+      public function __construct(EntityManagerInterface $em)
+      {
+           $this->em = $em;
+      }
+
+
+
+      /**
+        * @return mixed
+      */
+      public function getConnection()
+      {
+          return $this->em->getConnection();
+      }
+
+
+
+      /**
+       * @param $name
+       * @return mixed
+      */
+      public function getRepository($name)
+      {
+           return $this->em->getRepository($name);
+      }
+}

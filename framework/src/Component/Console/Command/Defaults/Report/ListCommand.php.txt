@@ -1,0 +1,142 @@
+<?php
+namespace Laventure\Component\Console\Command\Defaults;
+
+
+use Laventure\Component\Console\Command\Command;
+use Laventure\Component\Console\Command\Contract\ListableCommandInterface;
+use Laventure\Component\Console\Command\Exception\CommandException;
+use Laventure\Component\Console\Input\Contract\InputInterface;
+use Laventure\Component\Console\Output\Contract\OutputInterface;
+
+
+/**
+ * @ListCommand
+*/
+class ListCommand extends Command implements ListableCommandInterface
+{
+
+     /**
+      * @var string
+     */
+     protected $defaultName = 'list';
+
+
+
+     /**
+      * @var string
+     */
+     protected $description = 'describe all available commands of the system.';
+
+
+
+     /**
+      * @var array
+     */
+     protected $commands = [];
+
+
+
+
+     /**
+      * @param array $commands
+      * @return void
+     */
+     public function setCommandList(array $commands)
+     {
+          $this->commands = $commands;
+     }
+
+
+     /**
+      * @param InputInterface $input
+      * @param OutputInterface $output
+      * @return int
+      * @throws CommandException
+     */
+     protected function execute(InputInterface $input, OutputInterface $output): int
+     {
+           $this->showCommandListInformation($output);
+
+           return Command::SUCCESS;
+     }
+
+
+
+
+     /**
+      * @param OutputInterface $output
+      * @return void
+      * @throws CommandException
+     */
+     protected function showCommandListInformation(OutputInterface $output)
+     {
+          $output->writeln($this->displayHeaderBlockInformation());
+
+          $defaultCommands = [];
+          $commandNamed    = [];
+
+          /** @var Command $command */
+          foreach ($this->commands as $name => $command) {
+                  if (stripos($name, ':') !== false) {
+                      $name = explode(':', $name, 2)[0];
+                      $commandNamed[$name][] = $command;
+                  }else{
+                      $defaultCommands[] = $name;
+                  }
+          }
+
+
+          $output->writeln("List of Commands:");
+
+          if ($defaultCommands) {
+             foreach ($defaultCommands as $cmd) {
+                 $output->writeln(" ". $cmd);
+             }
+          }
+
+          if ($commandNamed) {
+              foreach ($commandNamed as $name => $cmdStack) {
+                  $output->writeln($name);
+                  /** @var Command $cmdObj */
+                  foreach ($cmdStack as $cmdObj) {
+                      $output->writeln(sprintf(" %s          %s", $cmdObj->getName(), $cmdObj->getDescription()));
+                  }
+              }
+          }
+
+          $output->writeln($this->displayEndBlockInformation());
+     }
+
+
+
+
+     /**
+      * @return false|string
+     */
+     private function displayHeaderBlockInformation()
+     {
+         return file_get_contents(__DIR__.'/stub/command_header.stub');
+     }
+
+
+
+
+     /**
+      * @return string
+     */
+     private function displayEndBlockInformation(): string
+     {
+          return "End";
+     }
+
+
+    /**
+     * @return array
+     */
+    public function getCommandList(): array
+    {
+        return $this->commands;
+    }
+
+
+}

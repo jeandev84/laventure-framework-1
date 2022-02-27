@@ -1,0 +1,26 @@
+<?php
+namespace Laventure\Foundation\Provider\Reference;
+
+use Laventure\Component\Container\ServiceProvider\ServiceProvider;
+
+
+/**
+ * @EntityManagerServiceProvider
+*/
+class EntityManagerServiceProvider extends ServiceProvider
+{
+
+    /**
+     * @inheritDoc
+    */
+    public function register()
+    {
+        /*#DEPRECATED
+         $this->app->singleton(EntityManager::class, function (Manager $manager) {
+              return $manager->getManager();
+         });
+
+        $this->app->singleton(EntityManagerInterface::class, EntityManager::class);
+        */
+    }
+}

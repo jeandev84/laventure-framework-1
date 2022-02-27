@@ -1,0 +1,27 @@
+<?php
+namespace Laventure\Foundation\Provider\Reference;
+
+
+use Laventure\Component\Container\ServiceProvider\ServiceProvider;
+use Laventure\Component\Database\Migration\Migrator;
+use Laventure\Component\Database\ORM\EntityManager;
+
+
+/**
+ * @MigrationServiceProvider
+*/
+class MigrationServiceProvider extends ServiceProvider
+{
+
+    /**
+     * @inheritDoc
+    */
+    public function register()
+    {
+        $this->app->singleton(Migrator::class, function (EntityManager $em) {
+               $migrator = new Migrator($em);
+               $migrator->addMigrations([]);
+               return $migrator;
+        });
+    }
+}

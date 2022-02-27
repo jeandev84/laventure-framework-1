@@ -1,0 +1,11 @@
+<?php
+namespace Laventure\Foundation\Database\Migration;
+
+
+/**
+ * @Migration
+*/
+class Migration
+{
+
+}

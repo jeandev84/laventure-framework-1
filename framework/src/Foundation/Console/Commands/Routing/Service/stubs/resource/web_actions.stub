@@ -1,0 +1,56 @@
+
+        /**
+         * @param Request $request
+         * @return Response
+        */
+        public function list(Request $request): Response
+        {
+            return $this->render('ViewDirectory/list.php');
+        }
+
+
+
+
+        /**
+         * @param Request $request
+         * @return Response
+        */
+        public function show(Request $request): Response
+        {
+            return $this->render('ViewDirectory/show.php');
+        }
+
+
+
+
+        /**
+         * @param Request $request
+         * @return Response
+        */
+        public function create(Request $request): Response
+        {
+            return $this->render('ViewDirectory/create.php');
+        }
+
+
+
+
+        /**
+         * @param Request $request
+         * @return Response
+        */
+        public function edit(Request $request): Response
+        {
+            return $this->render('ViewDirectory/edit.php');
+        }
+
+
+
+        /**
+         * @param Request $request
+         * @return Response
+        */
+        public function destroy(Request $request): Response
+        {
+            return $this->render('ViewDirectory/destroy.php');
+        }
