@@ -322,7 +322,7 @@ class ModuleGenerator extends StubGenerator
     */
     private function controllerNamespace(string $module = ''): string
     {
-        return $this->router->getControllerNamespace() . ($module ? "\\". trim($module, "\\") : '');
+        return $this->router->getNamespace() . ($module ? "\\". trim($module, "\\") : '');
     }
 
 

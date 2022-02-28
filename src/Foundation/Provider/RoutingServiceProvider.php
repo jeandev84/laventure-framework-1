@@ -39,7 +39,7 @@ class RoutingServiceProvider extends ServiceProvider
 
             /* $router->domain('http://localhost:8080') */
 
-            $router->withControllerNamespace('App\\Http\\Controller')
+            $router->namespace('App\\Http\\Controller')
                    ->withControllerPath('app/Http/Controller')
                    ->setDefaultRoute($route);
 

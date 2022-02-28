@@ -93,7 +93,7 @@ class Router implements RouterInterface
     /**
      * @var array
     */
-    protected $controllerStack = [];
+    protected $controllers = [];
 
 
 
@@ -121,7 +121,7 @@ class Router implements RouterInterface
     /**
      * @var array
     */
-    protected $groupStack = [
+    protected $groupOptions = [
         'prefix'      => '',
         'module'      => '',
         'name'        => '',
@@ -142,6 +142,8 @@ class Router implements RouterInterface
     }
 
 
+
+
     /**
      * Set base URL
      *
@@ -158,10 +160,12 @@ class Router implements RouterInterface
 
 
     /**
+     * Controller namespace
+     *
      * @param string $namespace
      * @return Router
-     */
-    public function withControllerNamespace(string $namespace): self
+    */
+    public function namespace(string $namespace): self
     {
          $this->namespace = trim($namespace, '\\');
 
@@ -174,7 +178,7 @@ class Router implements RouterInterface
     /**
      * @return string
     */
-    public function getControllerNamespace(): string
+    public function getNamespace(): string
     {
         return $this->namespace;
     }
@@ -189,9 +193,9 @@ class Router implements RouterInterface
      * @param null $default
      * @return mixed
     */
-    public function getGroupStack(string $name, $default = null)
+    public function getOption(string $name, $default = null)
     {
-        return $this->groupStack[$name] ?? $default;
+        return $this->groupOptions[$name] ?? $default;
     }
 
 
@@ -236,12 +240,12 @@ class Router implements RouterInterface
     /**
      * Add options
      *
-     * @param array $stack
+     * @param array $options
      * @return $this
     */
-    public function addGroupAttributes(array $stack): self
+    public function withOptions(array $options): self
     {
-        $this->groupStack = array_merge($this->groupStack, $stack);
+        $this->groupOptions = array_merge($this->groupOptions, $options);
 
         return $this;
     }
@@ -252,9 +256,9 @@ class Router implements RouterInterface
     /**
      * @return void
     */
-    public function refreshGroupAttributes()
+    public function removeOptions()
     {
-        $this->groupStack = [];
+        $this->groupOptions = [];
     }
 
 
@@ -270,14 +274,14 @@ class Router implements RouterInterface
     public function map($methods, string $path, $callback, string $name = null): Route
     {
         $optionsParams = [
-            'groupPath'   => $this->getGroupStack('prefix'),
-            'groupModule' => $this->getGroupStack('module'),
-            'groupName'   => $this->getGroupStack('name')
+            'groupPath'   => $this->getOption('prefix'),
+            'groupModule' => $this->getOption('module'),
+            'groupName'   => $this->getOption('name')
         ];
 
-        $methods      = $this->resolveMethods($methods);
-        $path         = $this->resolvePath($path);
-        $otherOptions = $this->resolveTargetOptions($callback);
+        $methods         = $this->resolveMethods($methods);
+        $path            = $this->resolvePath($path);
+        $callbackOptions = $this->makeCallbackOptions($callback);
             
         $route = $this->makeRoute($methods, $path, $callback, $optionsParams);
 
@@ -285,7 +289,7 @@ class Router implements RouterInterface
             $route->name($name);
         }
 
-        $route->options($otherOptions);
+        $route->withOptions($callbackOptions);
 
         return $this->routes->addRoute($route);
     }
@@ -296,16 +300,16 @@ class Router implements RouterInterface
      * @param array $methods
      * @param string $path
      * @param $callback
-     * @param array $optionsParams
+     * @param array $options
      * @return Route
     */
-    public function makeRoute(array $methods, string $path, $callback, array $optionsParams = []): Route
+    public function makeRoute(array $methods, string $path, $callback, array $options = []): Route
     {
-        $route = new Route($methods, $path, $callback, $optionsParams);
+        $route = new Route($methods, $path, $callback, $options);
 
         $route->domain($this->domain)
               ->where($this->patterns)
-              ->middlewares($this->getGroupStack('middlewares', []));
+              ->middlewares($this->getOption('middlewares', []));
 
         return $route;
     }
@@ -440,7 +444,7 @@ class Router implements RouterInterface
     */
     public function prefix(string $prefix): self
     {
-         return $this->addGroupAttributes(compact('prefix'));
+         return $this->withOptions(compact('prefix'));
     }
 
 
@@ -454,7 +458,7 @@ class Router implements RouterInterface
     */
     public function module(string $module): self
     {
-         return $this->addGroupAttributes(compact('module'));
+         return $this->withOptions(compact('module'));
     }
 
 
@@ -465,7 +469,7 @@ class Router implements RouterInterface
     */
     public function name(string $name): self
     {
-        return $this->setGroupAttribute('name', $name);
+        return $this->withOption('name', $name);
     }
 
 
@@ -477,7 +481,7 @@ class Router implements RouterInterface
     */
     public function middleware($middlewares): self
     {
-        return $this->addGroupAttributes(compact('middlewares'));
+        return $this->withOptions(compact('middlewares'));
     }
 
 
@@ -490,12 +494,12 @@ class Router implements RouterInterface
     public function group(Closure $routes, array $attributes = []): self
     {
           if ($attributes) {
-              $this->addGroupAttributes($attributes);
+              $this->withOptions($attributes);
           }
 
           $routes($this);
 
-          $this->refreshGroupAttributes();
+          $this->removeOptions();
 
           return $this;
     }
@@ -510,16 +514,10 @@ class Router implements RouterInterface
     */
     public function api(Closure $closure = null, array $attributes = []): self
     {
-         /*
-         if (! $attributes) {
-             $attributes = $this->getDefaultApiRouteAttributes();
-         }
-         */
-
          $attributes = array_merge($this->getDefaultAttributesAPI(), $attributes);
 
          if (! $closure) {
-             $this->addGroupAttributes($attributes);
+             $this->withOptions($attributes);
              return $this;
          }
 
@@ -565,7 +563,7 @@ class Router implements RouterInterface
     public function addResource(Resource $resource): self
     {
         $name = $resource->getName();
-        $resource->setRouteOptions($this->groupStack);
+        $resource->setRouteOptions($this->groupOptions);
         $resource->map($this);
 
         if ($resource instanceof ApiResource) {
@@ -834,9 +832,9 @@ class Router implements RouterInterface
      * @param $value
      * @return $this
     */
-    public function setGroupAttribute($key, $value): Router
+    public function withOption($key, $value): Router
     {
-         $this->groupStack[$key] = $value;
+         $this->groupOptions[$key] = $value;
 
          return $this;
     }
@@ -852,7 +850,7 @@ class Router implements RouterInterface
     */
     public function removeGroupAttribute(string $key)
     {
-         unset($this->groupStack[$key]);
+         unset($this->groupOptions[$key]);
     }
 
 
@@ -875,7 +873,7 @@ class Router implements RouterInterface
      * @param $callback
      * @return string[]
      */
-    protected function resolveTargetOptions($callback): array
+    protected function makeCallbackOptions($callback): array
     {
         $options = ['controller' => '', 'action' => ''];
 
@@ -891,7 +889,7 @@ class Router implements RouterInterface
 
                 if (stripos($callback, $needle) !== false) {
                     list($controller, $action) = explode($needle, $callback, 2);
-                    $options['controller'] = $this->generateControllerClass($controller);
+                    $options['controller'] = $this->generateControllerName($controller);
                     $options['action']     = $action;
                     return $options;
                 }
@@ -938,7 +936,7 @@ class Router implements RouterInterface
     */
     protected function resolvePath($path): string
     {
-        return $this->resolver->resolvePath($path, $this->getGroupStack('prefix'));
+        return $this->resolver->resolvePath($path, $this->getOption('prefix'));
     }
 
 
@@ -956,9 +954,9 @@ class Router implements RouterInterface
     /**
      * @return string
     */
-    protected function generateControllerNamespace(): string
+    protected function generateNamespace(): string
     {
-        if ($module = $this->getGroupStack('module')) {
+        if ($module = $this->getOption('module')) {
             $module = '\\' . trim($module, '\\') . '\\';
         }
 
@@ -969,23 +967,23 @@ class Router implements RouterInterface
 
 
     /**
-     * @param string $controllerClass
+     * @param string $controller
      * @return string
     */
-    public function generateControllerClass(string $controllerClass): string
+    public function generateControllerName(string $controller): string
     {
-         return trim($this->generateControllerNamespace(), '\\') . '\\' . $controllerClass;
+         return trim($this->generateNamespace(), '\\') . '\\' . $controller;
     }
 
 
 
     /**
-     * @param string $controllerPath
+     * @param string $path
      * @return $this
     */
-    public function withControllerPath(string $controllerPath): Router
+    public function withControllerPath(string $path): Router
     {
-         $this->controllerPath = trim($controllerPath, '\\/');
+         $this->controllerPath = trim($path, '\\/');
 
          return $this;
     }

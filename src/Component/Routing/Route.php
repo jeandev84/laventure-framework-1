@@ -118,10 +118,10 @@ class Route implements \ArrayAccess
     */
     public function __construct(array $methods, string $path, $target, array $options = [])
     {
-        $this->methods    = $methods;
-        $this->path       = $path;
-        $this->target     = $target;
-        $this->options    = $options;
+            $this->methods    = $methods;
+            $this->path       = $path;
+            $this->target     = $target;
+            $this->options    = $options;
     }
 
 
@@ -290,7 +290,7 @@ class Route implements \ArrayAccess
      * @param array $options
      * @return Route
     */
-    public function options(array $options): Route
+    public function withOptions(array $options): Route
     {
         $this->options = array_merge($this->options, $options);
 
@@ -305,7 +305,7 @@ class Route implements \ArrayAccess
      * @param $value
      * @return $this
     */
-    public function addOption(string $key, $value): Route
+    public function withOption(string $key, $value): Route
     {
         $this->options[$key] = $value;
 
@@ -357,7 +357,7 @@ class Route implements \ArrayAccess
     */
     public function groupName(string $groupName): Route
     {
-        $this->options(compact('groupName'));
+        $this->withOptions(compact('groupName'));
 
         return $this;
     }
@@ -536,7 +536,7 @@ class Route implements \ArrayAccess
     public function matchMethod(string $requestMethod): bool
     {
         if (\in_array($requestMethod, $this->methods)) {
-            $this->options(compact('requestMethod'));
+            $this->withOptions(compact('requestMethod'));
             return true;
         }
 
@@ -571,7 +571,7 @@ class Route implements \ArrayAccess
 
             $this->matches = $this->filterParams($matches);
 
-            $this->options(compact('pattern', 'requestPath'));
+            $this->withOptions(compact('pattern', 'requestPath'));
 
             return true;
         }
