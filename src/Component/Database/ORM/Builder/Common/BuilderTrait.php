@@ -2,9 +2,6 @@
 namespace Laventure\Component\Database\ORM\Builder\Common;
 
 
-use Laventure\Component\Database\Builder\Exception\SqlBuilderException;
-use Laventure\Component\Database\Connection\Exception\LogicException;
-use Laventure\Component\Database\Connection\Exception\StatementException;
 use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\ORM\Query\Query;
 
@@ -41,12 +38,13 @@ trait BuilderTrait
     public function getQuery(): Query
     {
         return (function () {
-            $query = new Query($this->em);
 
-            return $query->query(
+            $this->em->createNativeQuery(
                 $this->getSQL(),
                 $this->getParameters()
             );
+
+            return new Query($this->em);
 
         })();
     }

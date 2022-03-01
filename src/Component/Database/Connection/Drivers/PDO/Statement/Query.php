@@ -3,7 +3,7 @@ namespace Laventure\Component\Database\Connection\Drivers\PDO\Statement;
 
 
 
-use Laventure\Component\Database\Connection\Contract\QueryClassMapInterface;
+use Laventure\Component\Database\Connection\Contract\QueryEntityMapperInterface;
 use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\Exception\StatementException;
 use PDO;
@@ -14,7 +14,7 @@ use PDOStatement;
 /**
  * @Query
 */
-class Query implements QueryInterface, QueryClassMapInterface
+class Query implements QueryInterface, QueryEntityMapperInterface
 {
 
     /**
@@ -140,13 +140,37 @@ class Query implements QueryInterface, QueryClassMapInterface
 
 
     /**
+     * Example:
+     *
+     *  bind(':name', 'John')
+     *
      * @param string $param
      * @param $value
      * @param int $type
      * @return $this
     */
-    public function bindValue(string $param, $value, int $type = 0): self
+    public function bind(string $param, $value, int $type = 0): self
     {
+        if ($type === 0) {
+            
+            $typeName = strtolower(gettype($type));
+
+            switch ($typeName) {
+                case 'integer':
+                    $type = PDO::PARAM_INT;
+                break;
+                case 'boolean':
+                    $type = PDO::PARAM_BOOL;
+                break;
+                case 'null':
+                    $type = PDO::PARAM_NULL;
+                break;
+                default:
+                    $type = PDO::PARAM_STR;
+                break;
+            }
+        }
+
         $this->bindValues[] = [$param, $value, $type];
 
         return $this;
@@ -163,23 +187,11 @@ class Query implements QueryInterface, QueryClassMapInterface
         try {
 
             if ($this->bindValues) {
-
-                $params = [];
-
-                foreach ($this->bindValues as $bindValue) {
-                    list($name, $value, $type) = $bindValue;
-                    $this->statement->bindValue(':', $value, $type);
-                    $params[$name] = $value;
+                 $this->executeQueryWithBindValues();
+            }else {
+                if ($this->statement->execute($this->params)) {
+                    $this->addToCache($this->sql, $this->params);
                 }
-
-                if ($this->statement->execute()) {
-                    $this->addToCache($this->sql, $params);
-                }
-
-            }
-
-            if ($this->statement->execute($this->params)) {
-                $this->addToCache($this->sql, $this->params);
             }
 
         } catch (\PDOException $e) {
@@ -207,7 +219,7 @@ class Query implements QueryInterface, QueryClassMapInterface
     /**
      * @inheritDoc
      * @throws StatementException
-     */
+    */
     public function getResult()
     {
         $this->execute();
@@ -258,5 +270,58 @@ class Query implements QueryInterface, QueryClassMapInterface
     public function getFirstResult()
     {
         return  $this->getResult()[0] ?? null;
+    }
+
+
+
+    /**
+     * @inheritDoc
+    */
+    public function getSingleScalarResult()
+    {
+        return $this->statement->rowCount();
+    }
+
+
+
+    /**
+     * @inheritDoc
+    */
+    public function errors()
+    {
+        return $this->statement->errorInfo();
+    }
+
+
+    /**
+     * @return array
+    */
+    protected function populateBindValues(): array
+    {
+            $params = [];
+
+            foreach ($this->bindValues as $bindValue) {
+                list($param, $value, $type) = $bindValue;
+                $this->statement->bindValue($param, $value, $type);
+                $params[$param] = $value;
+            }
+
+            return $params;
+    }
+
+
+
+
+
+    /**
+     * @return void
+    */
+    protected function executeQueryWithBindValues()
+    {
+        $params = $this->populateBindValues();
+
+        if ($this->statement->execute()) {
+            $this->addToCache($this->sql, $params);
+        }
     }
 }

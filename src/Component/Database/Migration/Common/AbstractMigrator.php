@@ -22,7 +22,7 @@ abstract class AbstractMigrator implements MigratorInterface
     /**
      * @var string
     */
-    protected $migratorTable = 'laventure_migrations';
+    protected $tableName = 'migrations';
 
 
 
@@ -59,7 +59,7 @@ abstract class AbstractMigrator implements MigratorInterface
         $this->em         = $em;
         $this->schema     = new Schema($em->getConnectionManager());
         $this->migrations = new MigrationCollection();
-        $this->em->withTable($this->migratorTable);
+        $this->em->withTable($this->getTableName());
     }
 
 
@@ -93,9 +93,22 @@ abstract class AbstractMigrator implements MigratorInterface
     /**
      * @return string
     */
-    public function getMigratorTable(): string
+    public function getTableName(): string
     {
-        return $this->migratorTable;
+        return $this->tableName;
+    }
+
+
+
+    /**
+     * @param string $tableName
+     * @return $this
+    */
+    public function withTableName(string $tableName): self
+    {
+        $this->tableName = $tableName;
+
+        return $this;
     }
 
 
@@ -117,7 +130,7 @@ abstract class AbstractMigrator implements MigratorInterface
      */
     public function createMigrationTable()
     {
-        $this->schema->create($this->migratorTable, function (BluePrint $table) {
+        $this->schema->create($this->tableName, function (BluePrint $table) {
             $table->increments('id');
             $table->string('version');
             $table->datetime('executed_at');
@@ -142,12 +155,13 @@ abstract class AbstractMigrator implements MigratorInterface
 
                 $this->createMigrationTable();
 
-                $appliedMigrations = $this->getAppliedMigrations();
-                $migrationToApply  = $this->migrations->getToApplyMigrations(
-                    $appliedMigrations
+                $oldMigrations = $this->getOldMigrations();
+
+                $newMigrations  = $this->migrations->getNewMigrations(
+                    $oldMigrations
                 );
 
-                $this->up($migrationToApply);
+                $this->up($newMigrations);
             });
 
             return true;
@@ -247,7 +261,7 @@ abstract class AbstractMigrator implements MigratorInterface
 
             $this->down($this->getMigrations());
 
-            $this->schema->truncate($this->migratorTable);
+            $this->schema->truncate($this->tableName);
         });
     }
 
@@ -262,7 +276,7 @@ abstract class AbstractMigrator implements MigratorInterface
     public function reset()
     {
         $this->rollback();
-        $this->schema->dropIfExists($this->migratorTable);
+        $this->schema->dropIfExists($this->tableName);
         $this->migrations->removeMigrationFiles();
     }
 
@@ -272,13 +286,13 @@ abstract class AbstractMigrator implements MigratorInterface
      * @return array
      * @throws \Exception
     */
-    private function getAppliedMigrations(): array
+    private function getOldMigrations(): array
     {
         $columnReference = trim($this->getReferenceColumn(), '`');
 
         return $this->em->createQueryBuilder()
                         ->select([$columnReference])
-                        ->from($this->migratorTable)
+                        ->from($this->tableName)
                         ->getQuery()
                         ->getArrayColumns();
     }

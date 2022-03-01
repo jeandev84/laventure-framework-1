@@ -68,4 +68,20 @@ class Query implements QueryInterface
     {
         // TODO: Implement getFirstResult() method.
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function errors()
+    {
+        // TODO: Implement errors() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSingleScalarResult()
+    {
+        // TODO: Implement getSingleScalarResult() method.
+    }
 }

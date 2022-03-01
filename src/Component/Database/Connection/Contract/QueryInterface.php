@@ -6,7 +6,7 @@ namespace Laventure\Component\Database\Connection\Contract;
 /**
  * @QueryInterface
 */
-interface QueryInterface extends QueryHydrateInterface
+interface QueryInterface extends QueryResultInterface
 {
 
      /**
@@ -17,8 +17,25 @@ interface QueryInterface extends QueryHydrateInterface
 
 
 
+
+     /**
+      * @param array $params
+      * @return mixed
+     */
+     public function withParams(array $params);
+
+
+
+
      /**
       * @return mixed
      */
      public function execute();
+
+
+
+     /**
+      * @return mixed
+     */
+     public function errors();
 }

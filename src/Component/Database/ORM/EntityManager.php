@@ -5,16 +5,15 @@ namespace Laventure\Component\Database\ORM;
 use Closure;
 use Exception;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
-use Laventure\Component\Database\Connection\Contract\QueryHydrateInterface;
+use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\QueryFactory;
 use Laventure\Component\Database\ORM\Common\DataMapper;
 use Laventure\Component\Database\ORM\Contract\EntityManagerInterface;
-use Laventure\Component\Database\ORM\Contract\EntityRepositoryInterface;
 use Laventure\Component\Database\ORM\Contract\EntityRepositoryFactoryInterface;
+use Laventure\Component\Database\ORM\Contract\EntityRepositoryInterface;
 use Laventure\Component\Database\ORM\Contract\PersistenceInterface;
 use Laventure\Component\Database\ORM\Exception\EntityManagerException;
-use Laventure\Component\Database\ORM\Query\Builders\QueryBuilder;
-use Laventure\Component\Database\ORM\Query\Query;
+use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Repository\EntityRepository;
 use Laventure\Component\Database\ORM\Repository\Persistence;
 use Laventure\Component\Database\ORM\Repository\PersistenceFactory;
@@ -75,7 +74,7 @@ class EntityManager implements EntityManagerInterface
 
 
     /**
-     * @var Query
+     * @var QueryInterface
      */
     protected $query;
 
@@ -135,9 +134,8 @@ class EntityManager implements EntityManagerInterface
 
 
 
-
     /**
-     * @return
+     * @return Persistence
     */
     public function getPersistence(): Persistence
     {
@@ -149,11 +147,14 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return ConnectionInterface
-     */
+    */
     public function getConnectionManager(): ConnectionInterface
     {
         return $this->connection;
     }
+
+
+
 
 
 
@@ -372,16 +373,40 @@ class EntityManager implements EntityManagerInterface
      *
      * @param $sql
      * @param array $params
-     * @return QueryHydrateInterface
+     * @return QueryInterface
      * @throws Exception
-     */
-    public function createNativeQuery($sql, array $params = []): QueryHydrateInterface
+    */
+    public function createNativeQuery($sql, array $params = []): QueryInterface
     {
-        $query = QueryFactory::make($this->connection, $params, $this->classMap);
+        $query = $this->createQuery();
 
         $query->prepare($sql);
+        $query->withParams($params);
 
-        return $query;
+        return $this->query = $query;
+    }
+
+
+
+
+    /**
+     * @return QueryInterface
+    */
+    public function getQuery(): QueryInterface
+    {
+        return $this->query;
+    }
+
+
+
+
+
+    /**
+     * @return QueryInterface
+    */
+    public function createQuery(): QueryInterface
+    {
+        return QueryFactory::make($this->connection, $this->classMap);
     }
 
 

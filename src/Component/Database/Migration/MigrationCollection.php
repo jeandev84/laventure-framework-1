@@ -66,7 +66,7 @@ class MigrationCollection implements MigrationCollectionInterface
      * @param array $appliedMigrations
      * @return array
     */
-    public function getToApplyMigrations(array $appliedMigrations): array
+    public function getNewMigrations(array $appliedMigrations): array
     {
         $migrations = [];
 

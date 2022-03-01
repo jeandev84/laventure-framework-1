@@ -3,9 +3,12 @@ namespace Laventure\Component\Database\Connection\Contract;
 
 
 /**
- * @QueryHydrateInterface
+ * Hydrate query
+ * Returns different query result
+ *
+ * @QueryResultInterface
 */
-interface QueryHydrateInterface
+interface QueryResultInterface
 {
 
      /**
@@ -16,12 +19,14 @@ interface QueryHydrateInterface
      public function getResult();
 
 
+
      /**
       * get one or null item
       *
       * @return mixed
      */
      public function getOneOrNullResult();
+
 
 
      /**
@@ -39,4 +44,15 @@ interface QueryHydrateInterface
       * @return mixed
      */
      public function getFirstResult();
+
+
+
+
+     /**
+      * Get single scalar result
+      *  may be to rename count()
+      *
+      * @return mixed
+     */
+     public function getSingleScalarResult();
 }

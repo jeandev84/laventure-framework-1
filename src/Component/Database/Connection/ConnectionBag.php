@@ -26,7 +26,7 @@ class ConnectionBag
     /**
      * @var array
     */
-    protected static $defaultConnections = [];
+    protected static $defaults = [];
 
 
 
@@ -123,11 +123,24 @@ class ConnectionBag
     {
         foreach ($connectors as $connector) {
              if ($connector instanceof ConnectionInterface) {
-                 static::$defaultConnections[$connector->getName()] = $connector;
+                 static::$defaults[$connector->getName()] = $connector;
                  $this->add($connector);
              }
         }
     }
+
+
+
+
+    /**
+     * @param string $name
+     * @return bool
+    */
+    public static function hasInDefaults(string $name): bool
+    {
+        return \in_array($name, self::$defaults);
+    }
+
 
 
 
@@ -136,7 +149,7 @@ class ConnectionBag
     */
     public static function getDefaultNames(): array
     {
-          return array_keys(self::$defaultConnections);
+          return array_keys(self::$defaults);
     }
 
 

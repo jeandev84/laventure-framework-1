@@ -14,7 +14,7 @@ interface MigratorInterface
        *
        * @return mixed
       */
-      public function getMigratorTable();
+      public function getTableName();
 
 
 

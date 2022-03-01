@@ -39,14 +39,16 @@ class Schema
       */
      public function create(string $table, Closure $closure)
      {
-          // dd($this->connection->showTables());
+          /* dd($this->connection->showTables()); */
+
           return (function () use ($table, $closure) {
 
-              $factory   = new BluePrintFactory($this->connection->getName());
-              $bluePrint =  new BluePrint($factory->makeBluePrint());
-              $closure($bluePrint);
+               $factory   =  new BluePrintFactory($this->connection->getName());
+               $bluePrint =  new BluePrint($factory->makeBluePrint());
 
-              $this->connection->createTable($table, $bluePrint->printColumns());
+               $closure($bluePrint);
+
+               $this->connection->createTable($table, $bluePrint->printColumns());
 
           })();
      }

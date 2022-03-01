@@ -3,7 +3,7 @@ namespace Laventure\Component\Database\ORM\Query;
 
 
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
-use Laventure\Component\Database\Connection\Contract\QueryClassMapInterface;
+use Laventure\Component\Database\Connection\Contract\QueryEntityMapperInterface;
 use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\Exception\StatementException;
 use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query as PDOQuery;
@@ -24,19 +24,9 @@ class Query
 
 
         /**
-         * @var ConnectionInterface
-        */
-        protected $connection;
-
-
-
-
-        /**
          * @var QueryInterface
         */
         protected $query;
-
-
 
 
         /**
@@ -44,30 +34,21 @@ class Query
         */
         public function __construct(EntityManager $em)
         {
-              $this->em = $em;
-              $this->connection = $em->getConnectionManager();
+              $this->em    = $em;
+              $this->query = $em->getQuery();
         }
+
 
 
 
         /**
-         * @param string $sql
-         * @param array $params
-         * @return $this
+         * @return void
         */
-        public function query(string $sql, array $params = []): self
+        public function execute()
         {
-              $query = $this->connection->query($sql, $params);
-              $entityClass = $this->em->getClassMap();
-
-              if ($entityClass && $query instanceof QueryClassMapInterface) {
-                  $query->withEntity($entityClass);
-              }
-
-              $this->query = $query;
-
-              return $this;
+            $this->query->execute();
         }
+
 
 
 
@@ -81,15 +62,6 @@ class Query
             return $this->collects($results);
         }
 
-
-
-        /**
-         * @return void
-        */
-        public function execute()
-        {
-            $this->query->execute();
-        }
 
 
 
@@ -113,6 +85,16 @@ class Query
             $result = $this->query->getOneOrNullResult();
 
             return $this->collect($result);
+        }
+
+
+
+        /**
+         * @return mixed
+        */
+        public function getArrayColumns()
+        {
+            return $this->query->getArrayColumns();
         }
 
 

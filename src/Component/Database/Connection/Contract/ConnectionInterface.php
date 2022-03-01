@@ -11,11 +11,11 @@ interface ConnectionInterface
     public function connect($config);
     public function connected(): bool;
     public function getConnection();
+    public function createQuery(string $sql = null);
     public function beginTransaction();
     public function commit();
     public function rollback();
     public function lastInsertId();
-    public function query(string $sql, array $params = []);
     public function exec($sql);
     public function disconnect();
     public function createDatabase();

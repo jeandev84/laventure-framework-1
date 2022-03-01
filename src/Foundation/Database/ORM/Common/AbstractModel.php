@@ -5,7 +5,7 @@ use Exception;
 use Laventure\Component\Database\Connection\Exception\StatementException;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
 use Laventure\Component\Database\ORM\Builder\Select;
-use Laventure\Component\Database\ORM\Query\Builders\QueryBuilder;
+use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Repository\ActiveRecord;
 use Laventure\Foundation\Database\Laventure\Manager;
 use Laventure\Foundation\Database\ORM\Model;

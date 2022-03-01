@@ -3,8 +3,8 @@ namespace Laventure\Component\Database\Connection\Drivers\PDO\Connectors;
 
 
 use Laventure\Component\Database\Connection\Drivers\PDO\PdoConnection;
-use Laventure\Component\Database\Connection\Exception\LogicException;
 use Laventure\Component\Database\Connection\Exception\StatementException;
+use LogicException;
 
 
 /**
@@ -83,6 +83,7 @@ class PgsqlConnection extends PdoConnection
         $columns = rtrim($columns, ')');
 
         $table = $this->getTableRealName($table);
+
 
         $sqlGeneric = sprintf("CREATE TABLE IF NOT EXISTS %s (%s);", $table, $columns);
 

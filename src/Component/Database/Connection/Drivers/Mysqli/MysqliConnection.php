@@ -2,6 +2,7 @@
 namespace Laventure\Component\Database\Connection\Drivers\Mysqli;
 
 
+use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\Drivers\Mysqli\Contract\MysqliConnectionInterface;
 
 
@@ -139,5 +140,10 @@ class MysqliConnection implements MysqliConnectionInterface
     public function describeTable($table)
     {
         // TODO: Implement describeTable() method.
+    }
+
+    public function createQuery(string $sql = null): QueryInterface
+    {
+        // TODO: Implement createQuery() method.
     }
 }

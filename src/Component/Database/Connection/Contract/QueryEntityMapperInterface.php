@@ -3,9 +3,9 @@ namespace Laventure\Component\Database\Connection\Contract;
 
 
 /**
- * @QueryClassMapInterface
+ * @QueryEntityMapperInterface
 */
-interface QueryClassMapInterface
+interface QueryEntityMapperInterface
 {
      /**
       * @param string $entityClass

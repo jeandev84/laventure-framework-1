@@ -5,6 +5,7 @@ namespace Laventure\Component\Database\Connection\Drivers\PDO;
 
 use ArrayAccess;
 use Laventure\Component\Database\Connection\ConnectionTrait;
+use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Contract\PdoConnectionInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query;
 use Laventure\Component\Database\Connection\Exception\ConnectionLogicException;
@@ -88,6 +89,26 @@ class PdoConnection implements PdoConnectionInterface
      }
 
 
+
+
+     /**
+      * @param string|null $sql
+      * @return void
+     */
+     public function createQuery(string $sql = null): Query
+     {
+           $statement = new Query($this->getPdo());
+
+           if ($sql) {
+               $statement->prepare($sql);
+           }
+
+           return $statement;
+     }
+
+
+
+
      /**
       * @param string $sql
       * @param array $params
@@ -96,11 +117,7 @@ class PdoConnection implements PdoConnectionInterface
      */
      public function query(string $sql, array $params = []): Query
      {
-         $statement = new Query($this->getPdo());
-         $statement->prepare($sql)
-                   ->withParams($params);
-
-         return $statement;
+          return $this->createQuery($sql)->withParams($params);
      }
 
 

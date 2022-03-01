@@ -13,6 +13,13 @@ class Migrator extends AbstractMigrator
 
 
     /**
+     * @var string
+    */
+    protected $tableName = 'laventure_migrations';
+
+
+
+    /**
      * Create a migration table
      *
      * @return void

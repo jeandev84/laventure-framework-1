@@ -98,6 +98,18 @@ trait ConnectionTrait
 
 
     /**
+     * @param string $sql
+     * @param array $params
+     * @return void
+    */
+    public function query(string $sql, array $params = [])
+    {
+        $this->abortIfLogicException(__METHOD__);
+    }
+
+
+
+    /**
      * @return void
     */
     public function createDatabase()

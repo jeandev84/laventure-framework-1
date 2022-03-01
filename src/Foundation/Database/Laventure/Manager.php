@@ -10,8 +10,8 @@ use Laventure\Component\Database\Connection\Exception\LogicException;
 use Laventure\Component\Database\Managers\DatabaseManager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
 use Laventure\Component\Database\ORM\EntityManager;
-use Laventure\Component\Database\ORM\Query\Builders\QueryBuilder;
-use Laventure\Component\Database\ORM\Query\Builders\QueryBuilderFactory;
+use Laventure\Component\Database\ORM\Query\QueryBuilder;
+use Laventure\Component\Database\ORM\Query\QueryBuilderFactory;
 use Laventure\Component\Database\Schema\Schema;
 use Laventure\Foundation\Database\Exception\LaventureManagerException;
 

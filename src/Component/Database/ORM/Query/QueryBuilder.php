@@ -1,5 +1,5 @@
 <?php
-namespace Laventure\Component\Database\ORM\Query\Builders;
+namespace Laventure\Component\Database\ORM\Query;
 
 
 use Laventure\Component\Database\ORM\Builder\Delete;

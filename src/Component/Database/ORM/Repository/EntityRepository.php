@@ -4,7 +4,6 @@ namespace Laventure\Component\Database\ORM\Repository;
 
 use Laventure\Component\Database\ORM\Builder\Select;
 use Laventure\Component\Database\ORM\EntityManager;
-use Laventure\Component\Database\ORM\Query\Builders\QueryBuilder;
 
 
 /**
