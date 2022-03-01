@@ -34,7 +34,7 @@ class MigrationInstallCommand extends MigrationCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->migrator->install();
+        $this->migrator->createMigrationTable();
 
         $output->writeln("Migration version table successfully created!");
 

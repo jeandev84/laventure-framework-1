@@ -23,25 +23,4 @@ class Migration extends AbstractMigration
       * @inheritDoc
      */
      public function down() {}
-
-
-
-
-    /**
-     * @return string
-    */
-    public function getName(): string
-    {
-        return (new \ReflectionObject($this))->getShortName();
-    }
-
-
-
-    /**
-     * @return false|string
-    */
-    public function getPath()
-    {
-        return (new \ReflectionObject($this))->getFileName();
-    }
 }
