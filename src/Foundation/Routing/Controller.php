@@ -5,12 +5,12 @@ namespace Laventure\Foundation\Routing;
 use Exception;
 use Laventure\Component\Container\ContainerAwareInterface;
 use Laventure\Component\Container\ContainerInterface;
+use Laventure\Component\Database\Manager;
 use Laventure\Component\Http\Response\JsonResponse;
 use Laventure\Component\Http\Response\RedirectResponse;
 use Laventure\Component\Http\Response\Response;
 use Laventure\Component\Routing\Router;
 use Laventure\Component\Templating\Renderer;
-use Laventure\Foundation\Database\Laventure\Manager;
 
 
 /**

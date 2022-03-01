@@ -182,10 +182,21 @@ trait ConnectionTrait
      * @param $table
      * @return void
     */
+    public function showTableColumns($table)
+    {
+        $this->abortIfLogicException(__METHOD__);
+    }
+
+
+    /**
+     * @param $table
+     * @return void
+    */
     public function describeTable($table)
     {
         $this->abortIfLogicException(__METHOD__);
     }
+
 
 
 

@@ -37,7 +37,7 @@ class BluePrintFactory
        * @return BluePrintColumnInterface
        * @throws BluePrintFactoryException
       */
-      public function makeBluePrint(): BluePrintColumnInterface
+      public function make(): BluePrintColumnInterface
       {
             switch ($this->connectionName) {
                 case 'mysql':

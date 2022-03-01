@@ -259,10 +259,12 @@ class Renderer implements RendererInterface, ViewFactoryInterface
 
 
     /**
-     * @inheritDoc
+     * @return string
     */
-    public function getExtension()
+    public function getExtension(): string
     {
-        // TODO: Implement getExtension() method.
+         return 'php';
     }
+
+
 }

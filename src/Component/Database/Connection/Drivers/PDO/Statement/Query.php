@@ -204,18 +204,6 @@ class Query implements QueryInterface, QueryEntityMapperInterface
 
 
 
-
-    /**
-     * @param string $sql
-     * @param array $params
-     * @return void
-     */
-    public function addToCache(string $sql, array $params)
-    {
-        $this->cache[$sql] = $params;
-    }
-
-
     /**
      * @inheritDoc
      * @throws StatementException
@@ -296,7 +284,7 @@ class Query implements QueryInterface, QueryEntityMapperInterface
     /**
      * @return array
     */
-    protected function populateBindValues(): array
+    private function populateBindValues(): array
     {
             $params = [];
 
@@ -316,7 +304,7 @@ class Query implements QueryInterface, QueryEntityMapperInterface
     /**
      * @return void
     */
-    protected function executeQueryWithBindValues()
+    private function executeQueryWithBindValues()
     {
         $params = $this->populateBindValues();
 
@@ -324,4 +312,18 @@ class Query implements QueryInterface, QueryEntityMapperInterface
             $this->addToCache($this->sql, $params);
         }
     }
+
+
+
+
+    /**
+     * @param string $sql
+     * @param array $params
+     * @return void
+    */
+    public function addToCache(string $sql, array $params)
+    {
+        $this->cache[$sql] = $params;
+    }
+
 }

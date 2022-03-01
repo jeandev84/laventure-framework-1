@@ -18,6 +18,8 @@ interface ConnectionInterface
     public function lastInsertId();
     public function exec($sql);
     public function disconnect();
+
+
     public function createDatabase();
     public function dropDatabase();
     public function createTable($table, string $columns, array $alterColumns = []);
@@ -25,5 +27,6 @@ interface ConnectionInterface
     public function dropIfExistsTable($table);
     public function truncateTable($table);
     public function showTables();
+    public function showTableColumns($table);
     public function describeTable($table);
 }

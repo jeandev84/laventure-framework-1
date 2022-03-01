@@ -302,10 +302,10 @@ class Migrator implements MigratorInterface
         $columnReference = trim($this->getReferenceColumn(), '`');
 
         return $this->em->createQueryBuilder()
-            ->select([$columnReference])
-            ->from($this->tableName)
-            ->getQuery()
-            ->getArrayColumns();
+                        ->select([$columnReference])
+                        ->from($this->tableName)
+                        ->getQuery()
+                        ->getArrayColumns();
     }
 
 

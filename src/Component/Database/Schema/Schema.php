@@ -44,7 +44,7 @@ class Schema
           return (function () use ($table, $closure) {
 
                $factory   =  new BluePrintFactory($this->connection->getName());
-               $bluePrint =  new BluePrint($factory->makeBluePrint());
+               $bluePrint =  new BluePrint($factory->make());
 
                $closure($bluePrint);
 
@@ -52,8 +52,6 @@ class Schema
 
           })();
      }
-
-
 
 
 

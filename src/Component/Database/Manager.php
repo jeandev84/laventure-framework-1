@@ -1,12 +1,11 @@
 <?php
-namespace Laventure\Foundation\Database\Laventure;
+namespace Laventure\Component\Database;
 
 
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Contract\PdoConnectionInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query;
 use Laventure\Component\Database\Connection\Exception\ConnectionException;
-use Laventure\Component\Database\Connection\Exception\LogicException;
 use Laventure\Component\Database\Managers\DatabaseManager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
 use Laventure\Component\Database\ORM\EntityManager;
@@ -14,6 +13,7 @@ use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Query\QueryBuilderFactory;
 use Laventure\Component\Database\Schema\Schema;
 use Laventure\Foundation\Database\Exception\LaventureManagerException;
+use LogicException;
 
 
 /**
@@ -65,14 +65,14 @@ class Manager extends DatabaseManager
     /**
      * @return PdoConnectionInterface
      * @throws ConnectionException
-     * @throws LogicException|LaventureManagerException
-     */
+     * @throws LogicException
+    */
     public function getConnection(): PdoConnectionInterface
     {
         $connection = $this->connection();
 
         if (! $connection instanceof PdoConnectionInterface) {
-            throw new LaventureManagerException("Manager ". get_class() . " use PDO connection.");
+            throw new \Exception("Manager ". get_class() . " use PDO connection.");
         }
 
         return $connection;
@@ -175,11 +175,12 @@ class Manager extends DatabaseManager
     }
 
 
+
+
     /**
      * @throws ConnectionException
      * @throws LogicException
-     * @throws LaventureManagerException
-     */
+    */
     public function schema(): Schema
     {
         return new Schema($this->getConnection());
@@ -195,8 +196,7 @@ class Manager extends DatabaseManager
      * @return Query
      * @throws ConnectionException
      * @throws LogicException
-     * @throws LaventureManagerException
-     */
+    */
     public function query(string $sql, array $params): Query
     {
         return $this->getConnection()->query($sql, $params);

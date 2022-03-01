@@ -3,13 +3,12 @@ namespace Laventure\Component\Database\ORM\Repository;
 
 
 use Laventure\Component\Database\Connection\Exception\StatementException;
-use Laventure\Component\Database\ORM\Contract\ActiveRecordInterface;
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\Manager;
 use Laventure\Component\Database\ORM\Builder\Delete;
 use Laventure\Component\Database\ORM\Builder\Select;
 use Laventure\Component\Database\ORM\Builder\Update;
-use Laventure\Foundation\Database\Laventure\Manager;
-use ReflectionException;
+use Laventure\Component\Database\ORM\Contract\ActiveRecordInterface;
+use Laventure\Component\Database\ORM\EntityManager;
 
 
 /**
@@ -30,6 +29,14 @@ abstract class ActiveRecord implements ActiveRecordInterface
         * @var EntityManager
        */
        protected $em;
+
+
+
+
+       /**
+        * @var
+       */
+       protected $connection;
 
 
 
@@ -58,16 +65,16 @@ abstract class ActiveRecord implements ActiveRecordInterface
        {
              $em = $db->getEntityManager();
              $em->withClassMap(get_called_class(), $this->getTable());
-             // $em->removeUpdates();
-             $this->em = $em;
              $this->db = $db;
+             $this->em = $em;
+             $this->connection = $em->getConnectionManager();
        }
 
 
 
-
        /**
-         * @throws StatementException
+        * @param $id
+        * @return false|mixed|object|void
        */
        public function findOne($id)
        {

@@ -3,11 +3,11 @@ namespace Laventure\Foundation\Database\ORM\Common;
 
 use Exception;
 use Laventure\Component\Database\Connection\Exception\StatementException;
+use Laventure\Component\Database\Manager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
 use Laventure\Component\Database\ORM\Builder\Select;
 use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Repository\ActiveRecord;
-use Laventure\Foundation\Database\Laventure\Manager;
 use Laventure\Foundation\Database\ORM\Model;
 
 
@@ -225,10 +225,10 @@ class AbstractModel extends ActiveRecord
     /**
      * @return void
      * @throws Exception
-     */
+    */
     public function save()
     {
-        $columns = $this->getTableColumns();
+        $columns = $this->connection->showTableColumns($this->getTable());
 
         $attributes = [];
 
@@ -262,70 +262,5 @@ class AbstractModel extends ActiveRecord
             $this->insert($attributes);
             $this->setAttribute($this->primaryKey, $this->em->lastInsertId());
         }
-    }
-
-
-
-
-
-    /**
-     * @return array
-     * @throws Exception
-     */
-    private function getTableColumns(): array
-    {
-        // $sql = sprintf('SHOW COLUMNS FROM %s;', $this->getTable());
-        // $sql = sprintf('select * from information_schema.columns where table_name = %s', $this->getTable());
-        // $sql = sprintf('describe %s', $this->getTable());
-
-        $this->em->exec($this->createSQLFunctionShowColumns());
-        $fields =  $this->em->createNativeQuery($this->sqlShowColumnsMoreSure())->getResult();
-
-        // dd($fields);
-
-        // todo use array_filter() for implementations
-        $columns = [];
-
-        foreach ($fields as $field) {
-            $columns[] = $field->attributes['column_name'];
-        }
-
-        // dd($columns);
-
-        return $columns;
-    }
-
-
-
-    protected function createSQLFunctionShowColumns()
-    {
-        return "create or replace function describe_table(tbl_name text) returns table(column_name   
-                    varchar, data_type varchar,character_maximum_length int) as $$
-                    select column_name, data_type, character_maximum_length
-                    from INFORMATION_SCHEMA.COLUMNS where table_name = $1;
-                    $$
-                    language 'sql';
-            ";
-    }
-
-
-    protected function sqlShowColumnsMoreSure()
-    {
-        return sprintf("select  *  from describe_table('%s')", $this->getTable());
-    }
-
-
-    protected function sqlShowColumnsNotSure(): string
-    {
-        return sprintf("
-            SELECT
-               table_schema || '.' || table_name as show_tables
-            FROM
-               information_schema.tables
-            WHERE
-               table_type = '%s'
-            AND
-            table_schema NOT IN ('pg_catalog', 'information_sc')
-          ", 'BASE TABLE');
     }
 }

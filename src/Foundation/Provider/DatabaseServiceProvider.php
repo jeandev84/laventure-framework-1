@@ -6,11 +6,11 @@ use Laventure\Component\Config\Config;
 use Laventure\Component\Container\ServiceProvider\Contract\BootableServiceProvider;
 use Laventure\Component\Container\ServiceProvider\ServiceProvider;
 use Laventure\Component\Database\Connection\Exception\ConnectionException;
+use Laventure\Component\Database\Manager;
 use Laventure\Component\Database\Migration\Migrator;
 use Laventure\Component\Database\ORM\Contract\EntityManagerInterface;
 use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\FileSystem\FileSystem;
-use Laventure\Foundation\Database\Laventure\Manager;
 use Laventure\Foundation\Database\ORM\Factory\EntityRepositoryFactory;
 
 

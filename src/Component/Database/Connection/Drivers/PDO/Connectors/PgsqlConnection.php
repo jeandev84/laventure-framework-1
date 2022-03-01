@@ -149,11 +149,12 @@ class PgsqlConnection extends PdoConnection
     }
 
 
+
     /**
      * @return array|false|mixed
      * @throws LogicException
      * @throws StatementException
-    */
+     */
     protected function showInformationSchema()
     {
         $sqlGeneric = "SELECT * FROM pg_catalog.pg_tables 
@@ -171,9 +172,15 @@ class PgsqlConnection extends PdoConnection
      */
     public function describeTable($table)
     {
-        $this->exec($this->functionDescribeTable());
+        $table = $this->getTableRealName($table);
 
-        return $this->query($this->showColumnsGenericSQL($table))->getResult();
+        $this->exec($this->describeTableSQLFunction());
+
+        $sqlGeneric = sprintf("select  *  from describe_table('%s')", $table);
+
+        return $this->query($sqlGeneric)
+                    ->withFetchMode(\PDO::FETCH_ASSOC)
+                    ->getResult();
     }
 
 
@@ -181,26 +188,50 @@ class PgsqlConnection extends PdoConnection
     /**
      * @return string
      */
-    protected function functionDescribeTable(): string
+    protected function describeTableSQLFunction(): string
     {
-        return "create or replace function describe_table(tbl_name text) returns table(column_name   
-                    varchar, data_type varchar,character_maximum_length int) as $$
-                    select column_name, data_type, character_maximum_length
-                    from INFORMATION_SCHEMA.COLUMNS where table_name = $1;
-                    $$
-                    language 'sql';
+        return "create or replace function describe_table(tbl_name text) 
+                returns table(column_name varchar, data_type varchar,character_maximum_length int) as $$
+                select column_name, data_type, character_maximum_length
+                from INFORMATION_SCHEMA.COLUMNS where table_name = $1;
+                $$
+                language 'sql';
             ";
     }
 
 
     /**
      * @param $table
-     * @return string
+     * @return void
+     * @throws StatementException
     */
-    protected function showColumnsGenericSQL($table): string
+    public function showTableColumns($table)
     {
-        $table = $this->getTableRealName($table);
+         $schemaParams = $this->transformSchemaInformationToArray($table);
 
-        return sprintf("select  *  from describe_table('%s')", $table);
+         return $schemaParams['column_name'];
     }
+
+
+
+
+    /**
+     * @throws StatementException
+    */
+    protected function transformSchemaInformationToArray($table): array
+    {
+        $schemaInfos = $this->describeTable($table);
+
+        $informationParams = [];
+
+        foreach ($schemaInfos as $params) {
+            $params = (array) $params;
+            foreach ($params as $key => $value) {
+                $informationParams[$key][] = $value;
+            }
+        }
+
+        return $informationParams;
+    }
+
 }
