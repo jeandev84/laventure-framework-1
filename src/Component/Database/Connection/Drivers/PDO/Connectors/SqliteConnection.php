@@ -70,7 +70,7 @@ class SqliteConnection extends PdoConnection
     /**
      * @inheritDoc
      */
-    public function createTable($table, string $columns, array $alterColumns = [])
+    public function createTable($table, string $criteria)
     {
         // TODO: Implement createTable() method.
     }

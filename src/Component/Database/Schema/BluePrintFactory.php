@@ -2,7 +2,7 @@
 namespace Laventure\Component\Database\Schema;
 
 
-use Laventure\Component\Database\Schema\Column\Contract\BluePrintColumnInterface;
+use Laventure\Component\Database\Schema\Column\BluePrintColumn;
 use Laventure\Component\Database\Schema\Column\Drivers\MysqlBluePrintColumn;
 use Laventure\Component\Database\Schema\Column\Drivers\PostgresqlBluePrintColumn;
 use Laventure\Component\Database\Schema\Exception\BluePrintFactoryException;
@@ -31,20 +31,19 @@ class BluePrintFactory
       }
 
 
-
-
       /**
-       * @return BluePrintColumnInterface
-       * @throws BluePrintFactoryException
+        * @param string $table
+        * @return BluePrintColumn
+        * @throws BluePrintFactoryException
       */
-      public function make(): BluePrintColumnInterface
+      public function make(string $table): BluePrintColumn
       {
             switch ($this->connectionName) {
                 case 'mysql':
-                    return new MysqlBluePrintColumn();
+                    return new MysqlBluePrintColumn($table);
                 break;
                 case 'pgsql':
-                    return new PostgresqlBluePrintColumn();
+                    return new PostgresqlBluePrintColumn($table);
                 break;
             }
 

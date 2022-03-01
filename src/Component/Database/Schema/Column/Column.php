@@ -3,10 +3,14 @@ namespace Laventure\Component\Database\Schema\Column;
 
 
 
+use ArrayAccess;
+
+
+
 /**
  * @Column
 */
-class Column
+class Column implements ArrayAccess
 {
 
       /**
@@ -28,9 +32,11 @@ class Column
       /**
         * @param array $params
       */
-      public function __construct(array $params)
+      public function __construct(array $params = [])
       {
-          $this->params = array_merge($this->params, $params);
+           if ($params) {
+               $this->withParams($params);
+           }
       }
 
 
@@ -44,6 +50,20 @@ class Column
       public function withParam($key, $value): Column
       {
           $this->params[$key] = $value;
+
+          return $this;
+      }
+
+
+
+
+      /**
+       * @param array $params
+       * @return $this
+      */
+      public function withParams(array $params): self
+      {
+          $this->params = array_merge($this->params, $params);
 
           return $this;
       }
@@ -113,13 +133,66 @@ class Column
 
 
 
+      /**
+       * @param $key
+       * @return bool
+      */
+      public function hasParam($key): bool
+      {
+          return \array_key_exists($key, $this->params);
+      }
+
+
+
+
      /**
       * @param $comment
       * @return string
      */
      protected function resolveComment($comment): string
      {
-           return (string) (is_array($comment) ? join(', ', $comment) : $comment);
+           return (is_array($comment) ? join(', ', $comment) : $comment);
      }
 
+
+
+
+     /**
+      * @inheritDoc
+     */
+     public function offsetExists($offset): bool
+     {
+          return $this->hasParam($offset);
+     }
+
+
+
+     /**
+      * @inheritDoc
+     */
+     public function offsetGet($offset)
+     {
+         return $this->getParam($offset);
+     }
+
+
+
+
+     /**
+      * @inheritDoc
+     */
+     public function offsetSet($offset, $value)
+     {
+          $this->withParam($offset, $value);
+     }
+
+
+
+     /**
+      * @inheritDoc
+     */
+     public function offsetUnset($offset)
+     {
+          unset($this->params[$offset]);
+     }
 }

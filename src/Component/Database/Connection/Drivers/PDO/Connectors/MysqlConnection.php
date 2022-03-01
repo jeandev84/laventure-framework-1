@@ -2,7 +2,8 @@
 namespace Laventure\Component\Database\Connection\Drivers\PDO\Connectors;
 
 use Laventure\Component\Database\Connection\Drivers\PDO\PdoConnection;
-use Laventure\Component\Database\Connection\Exception\LogicException;
+use LogicException;
+
 
 /**
  * @MysqlConnection
@@ -48,13 +49,13 @@ class MysqlConnection extends PdoConnection
      * @inheritDoc
      * @throws LogicException
     */
-    public function createTable($table, string $columns, array $alterColumns = [])
+    public function createTable($table, string $criteria)
     {
          $sqlGeneric = sprintf(
       "CREATE TABLE IF NOT EXISTS %s (%s) 
              ENGINE=%s DEFAULT CHARSET=%s;",
              $table,
-             $columns,
+             $criteria,
              $this->config['engine'],
              $this->config['charset']
          );

@@ -35,7 +35,6 @@ class MigrationGenerateCommand extends MigrationCommand
      protected function execute(InputInterface $input, OutputInterface $output): int
      {
           if($path = $this->migrationStub->generateMigrationFile()) {
-              $path = $this->migrationStub->fileSystem->locate($path);
               $output->writeln(sprintf('Migration %s created successfully...', $path));
           }
 

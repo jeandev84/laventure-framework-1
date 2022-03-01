@@ -145,7 +145,7 @@ class Migrator implements MigratorInterface
 
     /**
      * @inheritDoc
-     * @throws \Exception
+     * @throws Exception
     */
     public function migrate()
     {
@@ -251,7 +251,7 @@ class Migrator implements MigratorInterface
     /**
      * @param MigrationInterface $migration
      * @return array
-     */
+    */
     protected function getTableAttributes(MigrationInterface $migration): array
     {
         return [
@@ -295,9 +295,9 @@ class Migrator implements MigratorInterface
 
     /**
      * @return array
-     * @throws \Exception
-     */
-    private function getOldMigrations(): array
+     * @throws Exception
+    */
+    protected function getOldMigrations(): array
     {
         $columnReference = trim($this->getReferenceColumn(), '`');
 

@@ -53,4 +53,5 @@ class PostgresqlBluePrintColumn extends BluePrintColumn
     {
         return $this->add($name, 'BOOLEAN', null);
     }
+
 }

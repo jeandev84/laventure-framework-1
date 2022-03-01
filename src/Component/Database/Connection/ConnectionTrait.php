@@ -127,13 +127,13 @@ trait ConnectionTrait
     }
 
 
+    
     /**
      * @param $table
-     * @param string $columns
-     * @param array $alterColumns
+     * @param string $criteria
      * @return void
     */
-    public function createTable($table, string $columns, array $alterColumns = [])
+    public function createTable($table, string $criteria)
     {
         $this->abortIfLogicException(__METHOD__);
     }

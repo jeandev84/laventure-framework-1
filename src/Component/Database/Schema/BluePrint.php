@@ -3,6 +3,7 @@ namespace Laventure\Component\Database\Schema;
 
 
 use Exception;
+use Laventure\Component\Database\Schema\Column\BluePrintColumn;
 use Laventure\Component\Database\Schema\Column\Column;
 use Laventure\Component\Database\Schema\Column\Contract\BluePrintColumnInterface;
 
@@ -14,19 +15,31 @@ class BluePrint
 {
 
       /**
-       * @var BluePrintColumnInterface
+       * @var BluePrintColumn
       */
       protected $bluePrint;
 
 
 
 
+
       /**
-       * @param BluePrintColumnInterface $bluePrint
+       * @param BluePrintColumn $bluePrint
       */
-      public function __construct(BluePrintColumnInterface $bluePrint)
+      public function __construct(BluePrintColumn $bluePrint)
       {
              $this->bluePrint = $bluePrint;
+      }
+
+
+
+
+      /**
+       * @return mixed
+      */
+      public function getTable()
+      {
+          return $this->bluePrint->getTable();
       }
 
 
@@ -126,11 +139,66 @@ class BluePrint
 
 
 
+
+
     /**
      * @return string
     */
     public function printColumns(): string
     {
          return $this->bluePrint->printColumns();
+    }
+
+
+
+
+
+    /**
+     * @param $name
+     * @param $type
+     * @param $length
+     * @return BluePrintColumn
+    */
+    public function add($name, $type, $length = null): BluePrintColumn
+    {
+        return $this->bluePrint->addColumn($name, $type, $length);
+    }
+
+
+
+
+    /**
+     * @param $name
+     * @param $type
+     * @param $length
+     * @return BluePrintColumn
+    */
+    public function modify($name, $type, $length = 0): BluePrintColumn
+    {
+        return $this->bluePrint->modifyColumn($name, $type, $length);
+    }
+
+
+
+
+    /**
+     * @param $name
+     * @return BluePrintColumn
+    */
+    public function drop($name): BluePrintColumn
+    {
+        return $this->bluePrint->dropColumn($name);
+    }
+
+
+
+
+
+    /**
+     * @return array
+    */
+    public function getAlteredColumns(): array
+    {
+        return $this->bluePrint->getAlteredColumns();
     }
 }

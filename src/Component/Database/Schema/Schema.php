@@ -36,19 +36,23 @@ class Schema
       * @param string $table
       * @param Closure $closure
       * @return void
-      */
+     */
      public function create(string $table, Closure $closure)
      {
-          /* dd($this->connection->showTables()); */
-
           return (function () use ($table, $closure) {
 
                $factory   =  new BluePrintFactory($this->connection->getName());
-               $bluePrint =  new BluePrint($factory->make());
+               $bluePrint =  new BluePrint($factory->make($table));
 
                $closure($bluePrint);
 
                $this->connection->createTable($table, $bluePrint->printColumns());
+
+               if ($alteredQueries = $bluePrint->getAlteredColumns()) {
+                   foreach ($alteredQueries as $sql) {
+                       $this->connection->exec($sql);
+                   }
+               }
 
           })();
      }
@@ -99,4 +103,15 @@ class Schema
       * @param string $table
      */
      public function truncateCascade(string $table) {}
+
+
+
+     /**
+      * @param string $sql
+      * @return mixed
+     */
+     public function exec(string $sql)
+     {
+         return $this->connection->exec($sql);
+     }
 }

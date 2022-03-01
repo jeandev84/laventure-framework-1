@@ -44,8 +44,8 @@ class PgsqlConnection extends PdoConnection
     public function createDatabase()
     {
         $sqlGeneric = sprintf(
-           "SELECT 'CREATE DATABASE %s' 
-                  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '%s')",
+     "SELECT 'CREATE DATABASE %s' 
+            WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '%s')",
             $this->config['database'],
             $this->config['database']
         );
@@ -77,21 +77,17 @@ class PgsqlConnection extends PdoConnection
      * @inheritDoc
      * @throws LogicException
      */
-    public function createTable($table, string $columns, array $alterColumns = [])
+    public function createTable($table, string $criteria)
     {
-        $columns = ltrim($columns, '(');
-        $columns = rtrim($columns, ')');
+        $criteria = ltrim($criteria, '(');
+        $criteria = rtrim($criteria, ')');
 
         $table = $this->getTableRealName($table);
 
 
-        $sqlGeneric = sprintf("CREATE TABLE IF NOT EXISTS %s (%s);", $table, $columns);
+        $sqlGeneric = sprintf("CREATE TABLE IF NOT EXISTS %s (%s);", $table, $criteria);
 
         $this->exec($sqlGeneric);
-
-        if ($alterColumns) {
-            // todo something alter table
-        }
     }
 
 

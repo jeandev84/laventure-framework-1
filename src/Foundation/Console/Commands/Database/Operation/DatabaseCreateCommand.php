@@ -1,9 +1,8 @@
 <?php
-namespace Laventure\Foundation\Console\Commands\Database;
+namespace Laventure\Foundation\Console\Commands\Database\Operation;
 
 use Laventure\Component\Config\Config;
 use Laventure\Component\Console\Command\Command;
-use Laventure\Component\Console\Command\Exception\CommandException;
 use Laventure\Component\Console\Input\Contract\InputInterface;
 use Laventure\Component\Console\Output\Contract\OutputInterface;
 use Laventure\Foundation\Console\Commands\Database\Common\DatabaseCommand;

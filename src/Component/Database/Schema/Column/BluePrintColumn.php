@@ -13,7 +13,10 @@ abstract class BluePrintColumn implements BluePrintColumnInterface
 {
 
 
-    const __SPACE__ = ' ';
+     /**
+      * @var string
+     */
+     public $table;
 
 
 
@@ -21,8 +24,16 @@ abstract class BluePrintColumn implements BluePrintColumnInterface
     /**
      * @var ColumnCollection
     */
-    protected $columns;
+    public $columns;
 
+
+
+
+
+    /**
+     * @var array
+    */
+    public $alteredColumns = [];
 
 
 
@@ -30,9 +41,10 @@ abstract class BluePrintColumn implements BluePrintColumnInterface
     /**
      * BluePrintColumn
     */
-    public function __construct()
+    public function __construct(string $table)
     {
         $this->columns = new ColumnCollection();
+        $this->table   = $table;
     }
 
 
@@ -72,7 +84,7 @@ abstract class BluePrintColumn implements BluePrintColumnInterface
      * @param $name
      * @param int $length
      * @return Column
-     */
+    */
     public function integer($name, int $length = 11): Column
     {
         return $this->add($name, 'INTEGER', $length);
@@ -84,7 +96,7 @@ abstract class BluePrintColumn implements BluePrintColumnInterface
      * @param string $name
      * @param int $length
      * @return Column
-     */
+    */
     public function string(string $name, int $length = 255): Column
     {
         return $this->add($name, 'VARCHAR', $length);
@@ -167,6 +179,9 @@ abstract class BluePrintColumn implements BluePrintColumnInterface
     }
 
 
+
+
+
     /**
      * @param Column $column
      * @return array
@@ -181,5 +196,113 @@ abstract class BluePrintColumn implements BluePrintColumnInterface
         }
         return $values;
     }
+
+
+
+
+    /**
+     * @param string $name
+     * @return bool
+    */
+    public function hasColumn(string $name): bool
+    {
+         return  $this->columns->hasColumn($name);
+    }
+
+
+
+
+    /**
+     * @param string $name
+     * @return Column|null
+    */
+    public function getColumn(string $name): ?Column
+    {
+         return $this->columns->getColumn($name);
+    }
+
+
+
+
+    /**
+     * @inheritDoc
+    */
+    public function getColumns()
+    {
+         return $this->columns->getColumns();
+    }
+
+
+
+
+    /**
+     * @return string
+    */
+    public function getTable(): string
+    {
+         return $this->table;
+    }
+
+
+
+
+    /**
+     * @param $name
+     * @param $type
+     * @param $length
+     * @return $this
+    */
+    public function addColumn($name, $type, $length = null): self
+    {
+         $this->alteredColumns[] = "ALTER TABLE {$this->table} ADD {$name} {$type($length)}";
+
+         return $this;
+    }
+
+
+
+
+    /**
+     * @param $name
+     * @return $this
+    */
+    public function dropColumn($name): self
+    {
+        $this->alteredColumns[] =  sprintf('ALTER TABLE %s DROP COLUMN %s', $this->table, $name);
+
+         return $this;
+    }
+
+
+
+
+
+
+    /**
+     * @param $name
+     * @param $type
+     * @param int $length
+     * @return $this
+    */
+    public function modifyColumn($name, $type, $length = 0): self
+    {
+         $type = $length ? $type($length) : $type;
+
+         $this->alteredColumns[] = sprintf('ALTER TABLE %s MODIFY %s %s', $this->table, $name, $type);
+
+         return $this;
+    }
+
+
+
+
+    /**
+     * @return array
+    */
+    public function getAlteredColumns(): array
+    {
+        return $this->alteredColumns;
+    }
+
 
 }

@@ -8,6 +8,8 @@ namespace Laventure\Component\Database\Schema\Column;
 class ColumnCollection
 {
 
+
+
     /**
      * @var Column[]
     */
@@ -95,5 +97,4 @@ class ColumnCollection
     {
         return $this->columns;
     }
-
 }

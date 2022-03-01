@@ -1,5 +1,5 @@
 <?php
-namespace Laventure\Foundation\Console\Commands\Database;
+namespace Laventure\Foundation\Console\Commands\Database\Operation;
 
 use Laventure\Component\Config\Config;
 use Laventure\Component\Console\Command\Command;
