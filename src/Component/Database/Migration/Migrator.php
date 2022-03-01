@@ -242,7 +242,7 @@ class Migrator implements MigratorInterface
 
         $qb = $this->em->createQueryBuilder();
 
-        $qb->insert($this->getAttributes($migration));
+        $qb->insert($this->getTableAttributes($migration));
     }
 
 
@@ -252,7 +252,7 @@ class Migrator implements MigratorInterface
      * @param MigrationInterface $migration
      * @return array
      */
-    protected function getAttributes(MigrationInterface $migration): array
+    protected function getTableAttributes(MigrationInterface $migration): array
     {
         return [
             'version'     => $migration->getName(),
