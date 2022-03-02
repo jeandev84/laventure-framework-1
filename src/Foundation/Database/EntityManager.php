@@ -5,7 +5,7 @@ namespace Laventure\Foundation\Database;
 use Exception;
 use Laventure\Component\Container\Container;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
-use Laventure\Component\Database\ORM\Common\EntityManager as AbstractEntityManager;
+use Laventure\Component\Database\ORM\EntityManager as AbstractEntityManager;
 use Laventure\Component\Database\ORM\Exception\EntityManagerException;
 use Laventure\Component\Database\ORM\Repository\EntityRepository;
 use ReflectionClass;

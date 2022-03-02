@@ -11,18 +11,10 @@ interface QueryInterface extends QueryResultInterface
 
      /**
       * @param string $sql
-      * @return mixed
-     */
-     public function prepare(string $sql);
-
-
-
-
-     /**
       * @param array $params
       * @return mixed
      */
-     public function withParams(array $params);
+     public function prepare(string $sql, array $params = []);
 
 
 

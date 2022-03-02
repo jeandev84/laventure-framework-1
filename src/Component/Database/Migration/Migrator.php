@@ -6,7 +6,7 @@ use Exception;
 use Laventure\Component\Database\Migration\Contract\MigrationInterface;
 use Laventure\Component\Database\Migration\Contract\MigratorInterface;
 use Laventure\Component\Database\Migration\Exception\MigrationException;
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\Schema\BluePrint;
 use Laventure\Component\Database\Schema\Schema;
 
@@ -58,7 +58,7 @@ class Migrator implements MigratorInterface
          $this->em         = $em;
          $this->schema     = new Schema($em->getConnectionManager());
          $this->migrations = new MigrationCollection();
-         $this->em->withTable($this->getTableName());
+         $this->em->table($this->getTableName());
     }
 
 
@@ -67,7 +67,7 @@ class Migrator implements MigratorInterface
     /**
      * @param MigrationInterface $migration
      * @return $this
-     */
+    */
     public function addMigration(MigrationInterface $migration): self
     {
         $this->migrations->addMigration($migration);
@@ -81,7 +81,7 @@ class Migrator implements MigratorInterface
     /**
      * @param array $migrations
      * @return void
-     */
+    */
     public function addMigrations(array $migrations)
     {
         $this->migrations->addMigrations($migrations);
@@ -232,7 +232,7 @@ class Migrator implements MigratorInterface
     /**
      * @param MigrationInterface $migration
      * @throws Exception
-     */
+    */
     protected function saveMigration(MigrationInterface $migration)
     {
         if (method_exists($migration, 'up')) {
@@ -241,7 +241,7 @@ class Migrator implements MigratorInterface
 
         $qb = $this->em->createQueryBuilder();
 
-        $qb->insert($this->getTableAttributes($migration));
+        $qb->insert($this->saveAttributes($migration));
     }
 
 
@@ -251,7 +251,7 @@ class Migrator implements MigratorInterface
      * @param MigrationInterface $migration
      * @return array
     */
-    protected function getTableAttributes(MigrationInterface $migration): array
+    protected function saveAttributes(MigrationInterface $migration): array
     {
         return [
             'version'     => $migration->getName(),

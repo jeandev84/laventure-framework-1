@@ -1,20 +1,18 @@
 <?php
-namespace Laventure\Component\Database\ORM\Repository\Persistence\Common;
+namespace Laventure\Component\Database\ORM\Repository\Common;
 
 
 use Laventure\Component\Database\ORM\Builder\Delete;
 use Laventure\Component\Database\ORM\Builder\Select;
 use Laventure\Component\Database\ORM\Builder\Update;
-use Laventure\Component\Database\ORM\Common\EntityManager;
 use Laventure\Component\Database\ORM\Contract\PersistenceInterface;
-
-
+use Laventure\Component\Database\ORM\EntityManager;
 
 
 /**
  * @AbstractPersistence
 */
-abstract class AbstractPersistence implements PersistenceInterface
+abstract class Persistence implements PersistenceInterface
 {
 
 
@@ -40,6 +38,7 @@ abstract class AbstractPersistence implements PersistenceInterface
     {
          $this->em = $em;
     }
+
 
 
     /**
@@ -91,7 +90,7 @@ abstract class AbstractPersistence implements PersistenceInterface
     {
         return $this->em->createQueryBuilder()
                         ->select(["*"])
-                        ->from($this->em->getTableName());
+                        ->from($this->em->getTable());
     }
 
 

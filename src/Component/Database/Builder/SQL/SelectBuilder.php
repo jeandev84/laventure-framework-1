@@ -106,7 +106,7 @@ class SelectBuilder extends SqlBuilder
          * @param string $alias
          * @return $this
         */
-        public function from(string $table, string $alias = ''): self
+        public function from($table, $alias = ''): self
         {
            $this->from[] = $alias ? sprintf('%s %s', $table, $alias) : $table;
 

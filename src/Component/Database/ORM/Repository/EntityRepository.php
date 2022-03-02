@@ -3,7 +3,7 @@ namespace Laventure\Component\Database\ORM\Repository;
 
 
 use Laventure\Component\Database\ORM\Builder\Select;
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 
 
 /**
@@ -45,16 +45,33 @@ class EntityRepository implements EntityRepositoryInterface
        * @param string $alias
        * @return Select
       */
-      public function createQueryBuilder(string $alias): Select
+      public function createQueryBuilder($alias): Select
       {
-          $this->em->withClass($this->entityClass);
-          $this->em->withTableAlias($alias);
+           $this->em->registerClass($this->entityClass);
 
-           return $this->em->createQueryBuilder()
-                           ->select(["*"])
-                           ->from($this->getTableName(), $alias);
+           $qb = $this->em->createQueryBuilder()->select(["*"]);
 
+           return $qb->from($this->getTableName(), $alias);
       }
+
+
+
+
+      /**
+       * @param string|null $alias
+       * @return Select
+      */
+      public function createSelectQuery(string $alias = null): Select
+      {
+           $this->em->registerClass($this->entityClass);
+
+           if ($alias) {
+               $this->em->alias($alias);
+           }
+
+           return $this->em->createQueryBuilder()->select(["*"]);
+      }
+
 
 
 
@@ -66,7 +83,9 @@ class EntityRepository implements EntityRepositoryInterface
       {
            return (function () use ($criteria) {
 
-               $qb = $this->em->getPersistence()->findQuery($criteria);
+               $this->em->registerClass($this->entityClass);
+
+               $qb = $this->em->persistence->findQuery($criteria);
 
                return $qb->getQuery()->getOneOrNullResult();
 
@@ -82,7 +101,7 @@ class EntityRepository implements EntityRepositoryInterface
        public function findAll(): array
        {
           return (function () {
-              return $this->createQueryBuilder($this->getTableAlias())
+              return $this->createQueryBuilder(null)
                           ->getQuery()
                           ->getResult();
           })();
@@ -99,7 +118,9 @@ class EntityRepository implements EntityRepositoryInterface
       {
           return (function () use ($criteria) {
 
-              $qb = $this->em->getPersistence()->findQuery($criteria);
+              $this->em->registerClass($this->entityClass);
+
+              $qb = $this->em->persistence->findQuery($criteria);
 
               return $qb->getQuery()->getResult();
 
@@ -126,5 +147,27 @@ class EntityRepository implements EntityRepositoryInterface
       private function getTableAlias(): string
       {
          return $this->em->createTableAlias($this->getTableName());
+      }
+
+
+
+
+      /**
+       * @param string|null $alias
+       * @return EntityManager
+      */
+      private function em(string $alias = null): EntityManager
+      {
+          $this->em->registerClass($this->entityClass);
+          $this->em->alias($alias);
+
+          return $this->em;
+      }
+      
+      
+      
+      private function registerClass($entityClass)
+      {
+          
       }
 }

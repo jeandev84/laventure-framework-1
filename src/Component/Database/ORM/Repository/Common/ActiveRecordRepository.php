@@ -6,10 +6,8 @@ namespace Laventure\Component\Database\ORM\Repository\Common;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
 use Laventure\Component\Database\Manager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\ORM\Repository\EntityRepository;
-use Laventure\Component\Database\ORM\Repository\Persistence;
-
 
 
 /**
@@ -158,9 +156,8 @@ trait ActiveRecordRepository
     */
     private function initialize(Manager $db)
     {
-        $classMap = get_called_class();
         $entityManager = $db->getEntityManager();
-        $entityManager->withClass($classMap, $this->getTable());
+        $entityManager->registerClass(get_called_class(), $this->getTable());
         $this->entityManager = $entityManager;
         $this->connection    = $entityManager->getConnectionManager();
         $this->repository    = $entityManager->createRepository();

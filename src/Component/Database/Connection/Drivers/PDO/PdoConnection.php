@@ -5,11 +5,10 @@ namespace Laventure\Component\Database\Connection\Drivers\PDO;
 
 use ArrayAccess;
 use Laventure\Component\Database\Connection\ConnectionTrait;
-use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Contract\PdoConnectionInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query;
 use Laventure\Component\Database\Connection\Exception\ConnectionLogicException;
-use Laventure\Component\Database\Connection\Exception\StatementException;
+
 use PDO;
 
 
@@ -50,7 +49,7 @@ class PdoConnection implements PdoConnectionInterface
 
                   $name = $config['driver'];
 
-                  if (Connection::hasInDrivers($name)) {
+                  if (Connection::has($name)) {
                       $this->setConnection($this->makeConnection([
                           'dsn'      => $this->makeDSN($config),
                           'username' => $this->getUsername(),
@@ -89,20 +88,12 @@ class PdoConnection implements PdoConnectionInterface
 
 
 
-
      /**
-      * @param string|null $sql
-      * @return void
+      * @return Query
      */
-     public function createQuery(string $sql = null): Query
+     public function createQuery(): Query
      {
-           $statement = new Query($this->getPdo());
-
-           if ($sql) {
-               $statement->prepare($sql);
-           }
-
-           return $statement;
+           return new Query($this->getPdo());
      }
 
 
@@ -116,7 +107,7 @@ class PdoConnection implements PdoConnectionInterface
      */
      public function query(string $sql, array $params = []): Query
      {
-          return $this->createQuery($sql)->withParams($params);
+          return $this->createQuery()->prepare($sql, $params);
      }
 
 
@@ -224,7 +215,7 @@ class PdoConnection implements PdoConnectionInterface
 
     /**
      * @return int
-     * @throws ConnectionLogicException|StatementException
+     * @throws ConnectionLogicException
     */
     public function lastInsertId(): int
     {

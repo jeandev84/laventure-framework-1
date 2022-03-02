@@ -22,7 +22,7 @@ class Query implements QueryInterface
     /**
      * @inheritDoc
      */
-    public function prepare(string $sql)
+    public function prepare(string $sql, array $params = [])
     {
         // TODO: Implement prepare() method.
     }

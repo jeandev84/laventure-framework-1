@@ -1,5 +1,5 @@
 <?php
-namespace Laventure\Component\Database\ORM\Common;
+namespace Laventure\Component\Database\ORM;
 
 
 use Closure;
@@ -7,12 +7,12 @@ use Exception;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
 use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\QueryFactory;
+use Laventure\Component\Database\ORM\Common\DataMapper;
 use Laventure\Component\Database\ORM\Contract\EntityManagerInterface;
-use Laventure\Component\Database\ORM\Contract\EntityRepositoryInterface;
 use Laventure\Component\Database\ORM\Exception\EntityManagerException;
 use Laventure\Component\Database\ORM\Query\QueryBuilder;
+use Laventure\Component\Database\ORM\Repository\Common\Persistence;
 use Laventure\Component\Database\ORM\Repository\EntityRepository;
-use Laventure\Component\Database\ORM\Repository\Persistence;
 use Laventure\Component\Database\ORM\Repository\PersistenceFactory;
 use Laventure\Component\Database\Utils\Str;
 
@@ -23,173 +23,189 @@ use Laventure\Component\Database\Utils\Str;
 abstract class EntityManager implements EntityManagerInterface
 {
 
-    use DataMapper;
+     use DataMapper;
 
 
 
-    /**
-     * @var Persistence
+     /**
+      * @var Persistence
      */
-    protected $persistence;
+     public $persistence;
 
 
 
 
-    /**
-     * @var ConnectionInterface
+     /**
+      * @var ConnectionInterface
      */
-    public $connection;
+     public $connection;
 
 
 
 
 
-    /**
-     * @var string
+     /**
+      * @var string
      */
-    protected $classMap;
+     protected $classMap;
 
 
 
 
-    /**
-     * @var string
+     /**
+      * @var string
      */
-    protected $tableName;
+     protected $identity = 'id';
 
 
 
 
-    /**
-     * @var string
+     /**
+      * @var string
      */
-    protected $tableAlias;
+     protected $table;
 
 
 
 
-
-
-    /**
-     * @var QueryInterface
+     /**
+      * @var string
      */
-    protected $query;
+     protected $alias;
 
 
 
 
-    /**
-     * @var array
+
+
+     /**
+      * @var QueryInterface
      */
-    protected $updates = [];
+     protected $query;
 
 
 
-    /**
-     * @var array
+
+     /**
+      * @var array
      */
-    protected $persists = [];
+     protected $updates = [];
 
 
 
 
-    /**
-     * @var array
+
+     /**
+      * @var array
      */
-    protected $removes = [];
+     protected $persists = [];
 
 
 
 
-    /**
-     * @param ConnectionInterface $connection
-     * @throws Exception
-    */
-    public function __construct(ConnectionInterface $connection)
-    {
-        $this->connection  = $connection;
-        $this->persistence = $this->makePersistence($connection);
+
+     /**
+      * @var array
+     */
+     protected $removes = [];
+
+
+
+
+
+
+     /**
+      * @param ConnectionInterface $connection
+      * @throws Exception
+     */
+     public function __construct(ConnectionInterface $connection)
+     {
+          $this->connection   = $connection;
+          $this->persistence  = $this->makePersistence($connection);
+     }
+
+
+
+
+     /**
+      * @return ConnectionInterface
+     */
+     public function getConnectionManager(): ConnectionInterface
+     {
+         return $this->connection;
+     }
+
+
+
+
+
+
+     /**
+      * @return mixed
+     */
+     public function getConnection()
+     {
+          return $this->connection->getConnection();
+     }
+
+
+
+
+
+     /**
+      * @return string
+     */
+     public function getClassMap(): string
+     {
+         return $this->classMap;
+     }
+
+
+
+
+     /**
+      * @return Persistence
+     */
+     public function getPersistence(): Persistence
+     {
+         return $this->persistence;
+     }
+
+
+
+
+     /**
+      * @param $class
+      * @param string|null $table
+      * @return self
+     */
+     public function registerClass($class, string $table = null): self
+     {
+          $classMap = \is_object($class) ? get_class($class) : $class;
+
+          $this->classMap = $classMap;
+
+          $table = $table ?? $this->createTableName($classMap);
+
+          $this->table($table);
+
+          return $this;
     }
 
 
 
 
     /**
-     * @return Persistence
-    */
-    public function getPersistence(): Persistence
-    {
-        return $this->persistence;
-    }
-
-
-
-
-    /**
-     * @return ConnectionInterface
-     */
-    public function getConnectionManager(): ConnectionInterface
-    {
-        return $this->connection;
-    }
-
-
-
-
-
-
-    /**
-     * @return mixed
-     */
-    public function getConnection()
-    {
-        return $this->connection->getConnection();
-    }
-
-
-
-
-    /**
-     * @return string
-     */
-    public function getClassMap(): string
-    {
-        return $this->classMap;
-    }
-
-
-
-
-    /**
-     * @param $concrete
-     * @param string|null $table
-     * @return self
-    */
-    public function withClass($concrete, string $table = null): self
-    {
-        $classMap = \is_object($concrete) ? get_class($concrete) : $concrete;
-
-        $this->classMap  = $classMap;
-
-        $table = $table ?? $this->createTableName($classMap);
-
-        $this->withTable($table);
-
-        return $this;
-    }
-
-
-
-
-
-    /**
-     * @param string $tableName
+     * @param string $table
+     * @param string|null $alias
      * @return $this
-     */
-    public function withTable(string $tableName): self
+    */
+    public function table(string $table, string $alias = null): self
     {
-        $this->tableName  = $tableName;
-        $this->tableAlias = $this->createTableAlias($tableName);
+        $this->table = $table;
+        $alias = $alias ?? $this->createTableAlias($table);
+
+        $this->alias($alias);
 
         return $this;
     }
@@ -199,26 +215,26 @@ abstract class EntityManager implements EntityManagerInterface
 
 
     /**
-     * @param $tableAlias
+     * @param $alias
      * @return $this
-     */
-    public function withTableAlias($tableAlias): self
+    */
+    public function alias($alias): self
     {
-        $this->tableAlias = $tableAlias;
+        $this->alias = $alias;
 
         return $this;
     }
 
-
+    
 
 
     /**
      * @param object $concrete
      * @return array
-     */
+    */
     public function getClassMetadata(object $concrete): array
     {
-        $this->withClass(get_class($concrete));
+        $this->registerClass(get_class($concrete));
 
         return $this->map($concrete);
     }
@@ -228,10 +244,14 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @return string
-     */
-    public function getTableName(): string
+    */
+    public function getTable(): string
     {
-        return $this->tableName;
+        if ($this->table) {
+            return $this->table;
+        }
+
+        return $this->table = $this->createTableName($this->classMap);
     }
 
 
@@ -239,18 +259,24 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @return string
-     */
-    public function getTableAlias(): string
+    */
+    public function getAlias(): string
     {
-        return $this->tableAlias;
+        if ($this->alias) {
+            return $this->alias;
+        }
+
+        return $this->alias = $this->createTableAlias($this->getTable());
     }
+
+
 
 
 
     /**
      * @param string $sql
      * @return false|int
-     */
+    */
     public function exec($sql)
     {
         return $this->connection->exec((string)$sql);
@@ -266,15 +292,14 @@ abstract class EntityManager implements EntityManagerInterface
      * @param array $params
      * @return QueryInterface
      * @throws Exception
-     */
+    */
     public function createNativeQuery($sql, array $params = []): QueryInterface
     {
-        $query = $this->createQuery();
+         $query = $this->createQuery();
 
-        $query->prepare($sql);
-        $query->withParams($params);
+         $query->prepare($sql, $params);
 
-        return $this->query = $query;
+         return $this->query = $query;
     }
 
 
@@ -282,7 +307,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @return QueryInterface
-     */
+    */
     public function getQuery(): QueryInterface
     {
         return $this->query;
@@ -299,6 +324,8 @@ abstract class EntityManager implements EntityManagerInterface
     {
         return QueryFactory::make($this->connection, $this->classMap);
     }
+
+
 
 
 
@@ -328,49 +355,44 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @param $object
-     * @return void
+     * @return $this
     */
-    public function persist($object)
+    public function persist($object): self
     {
         $this->preUpdate($object);
         $this->prePersist($object);
 
         $data = $this->getClassMetadata($object);
 
-        $this->persistence->persist($data);
+        $id = $data[$this->identity] ?? $this->persistence->generateId();
 
-        $this->persists[] = $object;
+        $this->persists[$id] = $data;
 
+        return $this;
     }
+
+
 
 
 
     /**
      * @param $object
-     * @return void
-     */
-    public function remove($object)
+     * @return $this
+    */
+    public function remove($object): self
     {
           $this->preRemove($object);
 
           $data = $this->getClassMetadata($object);
 
-          if (! empty($data['id'])) {
-              $this->persistence->remove((int)$data['id']);
+          if (! empty($data[$this->identity])) {
+
+              $id = $data[$this->identity];
+
+              $this->removes[$id] = $id;
           }
 
-          $this->removes[] = $object;
-    }
-
-
-
-
-    /**
-     * @return array
-    */
-    public function getRemoves(): array
-    {
-        return $this->removes;
+          return $this;
     }
 
 
@@ -409,21 +431,23 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @return void
-     */
+    */
     public function flush()
     {
         $this->preFlush();
 
         $this->transaction(function () {
-            $this->persistence->flush();
+            $this->flushProcess();
         });
     }
 
 
 
+
+
     /**
      * @return void
-     */
+    */
     protected function preFlush()
     {
         $this->persistUpdates();
@@ -434,7 +458,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @inheritDoc
-     */
+    */
     public function beginTransaction()
     {
         $this->connection->beginTransaction();
@@ -445,7 +469,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @inheritDoc
-     */
+    */
     public function commit()
     {
         $this->connection->commit();
@@ -456,7 +480,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @inheritDoc
-     */
+    */
     public function rollback()
     {
         $this->connection->rollback();
@@ -466,7 +490,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @return int
-     */
+    */
     public function lastInsertId(): int
     {
         return $this->connection->lastInsertId();
@@ -474,10 +498,12 @@ abstract class EntityManager implements EntityManagerInterface
 
 
 
+
+
     /**
      * @param object $object
      * @return void
-     */
+    */
     public function updates(object $object)
     {
         $this->updates[] = $object;
@@ -487,7 +513,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @return void
-     */
+    */
     public function removeUpdates()
     {
         $this->updates = [];
@@ -497,7 +523,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @return array
-     */
+    */
     public function getUpdates(): array
     {
         return $this->updates;
@@ -506,9 +532,22 @@ abstract class EntityManager implements EntityManagerInterface
 
 
 
+
+    /**
+     * @return array
+    */
+    public function getRemoves(): array
+    {
+        return $this->removes;
+    }
+
+
+
+
+
     /**
      * @return void
-     */
+    */
     protected function persistUpdates()
     {
         foreach ($this->updates as $object) {
@@ -522,7 +561,7 @@ abstract class EntityManager implements EntityManagerInterface
     /**
      * @param object $object
      * @return void
-     */
+    */
     protected function prePersist(object $object)
     {
         if (method_exists($object, 'prePersist')) {
@@ -537,7 +576,7 @@ abstract class EntityManager implements EntityManagerInterface
     /**
      * @param object $object
      * @return void
-     */
+    */
     protected function preUpdate(object $object)
     {
         if (method_exists($object, 'preUpdate')) {
@@ -551,29 +590,12 @@ abstract class EntityManager implements EntityManagerInterface
     /**
      * @param object $object
      * @return void
-     */
+    */
     protected function preRemove(object $object)
     {
         if (method_exists($object, 'preRemove')) {
             $object->preRemove();
         }
-    }
-
-
-
-
-
-
-    /**
-     * @param ConnectionInterface $connection
-     * @return Persistence
-     * @throws Exception
-     */
-    protected function makePersistence(ConnectionInterface $connection): Persistence
-    {
-        $persistence = (new PersistenceFactory($this))->make($connection);
-
-        return new Persistence($persistence);
     }
 
 
@@ -588,7 +610,7 @@ abstract class EntityManager implements EntityManagerInterface
     {
         $shortName = $this->getShortName($entityClass);
 
-        return mb_strtolower(trim($shortName, 's')). 's';
+        return mb_strtolower(trim($shortName, 's')) . 's';
     }
 
 
@@ -605,6 +627,58 @@ abstract class EntityManager implements EntityManagerInterface
 
 
 
+    /**
+     * @param array $attributes
+     * @param $id
+     * @return mixed
+    */
+    public function update(array $attributes, $id)
+    {
+        return $this->persistence->update($attributes, $id);
+    }
+
+
+
+
+
+    /**
+     * @param array $attributes
+     * @return void
+    */
+    public function insert(array $attributes)
+    {
+        return $this->persistence->insert($attributes);
+    }
+
+
+
+
+    /**
+     * @param int $id
+     * @return mixed
+    */
+    public function delete(int $id)
+    {
+        return $this->persistence->delete($id);
+    }
+
+
+
+
+
+
+    /**
+     * @param ConnectionInterface $connection
+     * @return Persistence
+     * @throws Exception
+    */
+    protected function makePersistence(ConnectionInterface $connection): Persistence
+    {
+        return (new PersistenceFactory($this))->make($connection);
+    }
+
+
+
 
 
     /**
@@ -614,6 +688,47 @@ abstract class EntityManager implements EntityManagerInterface
     protected function getShortName($name): string
     {
         return  (new \ReflectionClass($name))->getShortName();
+    }
+
+
+
+
+    /**
+     * @return void
+    */
+    protected function flushProcess()
+    {
+         $this->persistProcess();
+         $this->removeProcess();
+    }
+
+
+
+
+    /**
+     * @return void
+    */
+    protected function persistProcess()
+    {
+        if ($this->persists) {
+            foreach ($this->persists as $attributes) {
+                $this->persistence->persist($attributes);
+            }
+        }
+    }
+
+
+
+    /**
+     * @return void
+    */
+    protected function removeProcess()
+    {
+        if ($this->removes) {
+            foreach ($this->removes as $id) {
+                $this->persistence->delete($id);
+            }
+        }
     }
 
 

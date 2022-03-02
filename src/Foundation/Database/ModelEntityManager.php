@@ -3,10 +3,9 @@ namespace Laventure\Foundation\Database;
 
 
 
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\ORM\Exception\EntityManagerException;
 use Laventure\Component\Database\ORM\Repository\EntityRepository;
-
 
 
 /**

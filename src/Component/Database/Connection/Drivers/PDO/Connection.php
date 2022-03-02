@@ -64,7 +64,7 @@ class Connection
       * @return mixed
       * @throws PdoDriverConnectionException
      */
-     public static function hasInDrivers($connection)
+     public static function has($connection)
      {
          if (! \in_array($connection, PDO::getAvailableDrivers())) {
              throw new PdoDriverConnectionException('unable connection driver ('. $connection .')');

@@ -4,13 +4,13 @@ namespace Laventure\Component\Database\ORM\Repository\Persistence;
 
 
 use Laventure\Component\Database\ORM\Builder\Select;
-use Laventure\Component\Database\ORM\Repository\Persistence\Common\AbstractPersistence;
+use Laventure\Component\Database\ORM\Repository\Common\Persistence;
 
 
 /**
  * @PdoPersistence
 */
-class PdoPersistence extends AbstractPersistence
+class PdoPersistence extends Persistence
 {
 
     /**

@@ -3,13 +3,12 @@ namespace Laventure\Component\Database\ORM\Repository\Persistence;
 
 
 
-use Laventure\Component\Database\ORM\Repository\Persistence\Common\AbstractPersistence;
-
+use Laventure\Component\Database\ORM\Repository\Common\Persistence;
 
 /**
  * @MysqliPersistence
 */
-class MysqliPersistence extends AbstractPersistence
+class MysqliPersistence extends Persistence
 {
 
     /**

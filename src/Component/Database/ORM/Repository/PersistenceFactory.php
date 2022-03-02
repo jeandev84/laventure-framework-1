@@ -2,10 +2,13 @@
 namespace Laventure\Component\Database\ORM\Repository;
 
 
+use Exception;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
-use Laventure\Component\Database\Connection\Drivers\PDO\PdoConnection;
-use Laventure\Component\Database\ORM\Common\EntityManager;
-use Laventure\Component\Database\ORM\Repository\Persistence\Common\AbstractPersistence;
+use Laventure\Component\Database\Connection\Drivers\Mysqli\Contract\MysqliConnectionInterface;
+use Laventure\Component\Database\Connection\Drivers\PDO\Contract\PdoConnectionInterface;
+use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\ORM\Repository\Common\Persistence;
+use Laventure\Component\Database\ORM\Repository\Persistence\MysqliPersistence;
 use Laventure\Component\Database\ORM\Repository\Persistence\PdoPersistence;
 
 
@@ -34,17 +37,23 @@ class PersistenceFactory
       }
 
 
+
+
       /**
        * @param ConnectionInterface $connection
-       * @return AbstractPersistence
-       * @throws \Exception
+       * @return Persistence
+       * @throws Exception
       */
-      public function make(ConnectionInterface $connection): AbstractPersistence
+      public function make(ConnectionInterface $connection): Persistence
       {
-          if ($connection instanceof PdoConnection) {
+          if ($connection instanceof PdoConnectionInterface) {
               return new PdoPersistence($this->em);
           }
 
-          throw new \Exception("Cannot make persistence object for connection {$connection->getName()}");
+          if ($connection instanceof MysqliConnectionInterface) {
+              return new MysqliPersistence($this->em);
+          }
+
+          throw new Exception("Cannot make persistence object for connection {$connection->getName()}");
       }
 }

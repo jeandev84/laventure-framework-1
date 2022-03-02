@@ -11,7 +11,7 @@ interface ConnectionInterface
     public function connect($config);
     public function connected(): bool;
     public function getConnection();
-    public function createQuery(string $sql = null);
+    public function createQuery();
     public function beginTransaction();
     public function commit();
     public function rollback();

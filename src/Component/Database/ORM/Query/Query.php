@@ -3,7 +3,7 @@ namespace Laventure\Component\Database\ORM\Query;
 
 
 use Laventure\Component\Database\Connection\Contract\QueryInterface;
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 
 
 /**

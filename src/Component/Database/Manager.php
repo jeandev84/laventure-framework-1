@@ -9,7 +9,7 @@ use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query;
 use Laventure\Component\Database\Connection\Exception\ConnectionException;
 use Laventure\Component\Database\Managers\DatabaseManager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Query\QueryBuilderFactory;
 use Laventure\Component\Database\Schema\Schema;
@@ -218,7 +218,7 @@ class Manager extends DatabaseManager
     */
     public function table(string $name): QueryBuilder
     {
-        $this->em->withTable($name);
+        $this->em->table($name);
 
         return QueryBuilderFactory::make($this->em);
     }

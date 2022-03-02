@@ -2,8 +2,7 @@
 namespace Laventure\Component\Database\ORM\Repository;
 
 
-use Laventure\Component\Database\ORM\Common\EntityManager;
-
+use Laventure\Component\Database\ORM\EntityManager;
 
 
 /**

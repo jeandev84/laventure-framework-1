@@ -6,7 +6,7 @@ use Laventure\Component\Database\ORM\Builder\Delete;
 use Laventure\Component\Database\ORM\Builder\Insert;
 use Laventure\Component\Database\ORM\Builder\Select;
 use Laventure\Component\Database\ORM\Builder\Update;
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 
 
 /**
@@ -45,8 +45,8 @@ class QueryBuilder
       public function __construct(EntityManager $em)
       {
            $this->em    = $em;
-           $this->table = $em->getTableName();
-           $this->alias = $em->getTableAlias();
+           $this->table = $em->getTable();
+           $this->alias = $em->getAlias();
       }
 
 

@@ -87,29 +87,20 @@ class Query implements QueryInterface, QueryEntityMapperInterface
 
 
 
+
     /**
      * @inheritDoc
     */
-    public function prepare(string $sql): self
+    public function prepare(string $sql, array $params = []): self
     {
         $this->statement = $this->pdo->prepare($sql);
         $this->sql       = $sql;
+        $this->params    = $params;
 
         return $this;
     }
 
 
-
-    /**
-     * @param array $params
-     * @return $this
-     */
-    public function withParams(array $params): self
-    {
-        $this->params = $params;
-
-        return $this;
-    }
 
 
 

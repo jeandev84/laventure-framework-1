@@ -2,7 +2,7 @@
 namespace EntityNamespace;
 
 
-use Laventure\Foundation\Database\ORM\Model;
+use Laventure\Component\Database\ORM\Model;
 
 
 /**

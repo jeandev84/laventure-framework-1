@@ -2,7 +2,7 @@
 namespace Laventure\Component\Database\ORM\Query;
 
 use Exception;
-use Laventure\Component\Database\ORM\Common\EntityManager;
+use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\ORM\Query\Builders\MysqlQueryBuilder;
 use Laventure\Component\Database\ORM\Query\Builders\PostgresQueryBuilder;
 

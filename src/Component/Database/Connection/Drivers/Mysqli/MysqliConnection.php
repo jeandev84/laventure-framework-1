@@ -142,8 +142,13 @@ class MysqliConnection implements MysqliConnectionInterface
         // TODO: Implement describeTable() method.
     }
 
-    public function createQuery(string $sql = null): QueryInterface
+    public function createQuery(): QueryInterface
     {
         // TODO: Implement createQuery() method.
+    }
+
+    public function showTableColumns($table)
+    {
+        // TODO: Implement showTableColumns() method.
     }
 }

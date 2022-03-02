@@ -4,9 +4,8 @@ namespace Laventure\Foundation\Database;
 
 
 use Laventure\Component\Database\ORM\Contract\CrudInterface;
-use Laventure\Component\Database\ORM\Repository\Persistence;
-use Laventure\Component\Database\ORM\Common\EntityManager;
-
+use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\ORM\Repository\Common\Persistence;
 
 
 /**
@@ -37,10 +36,11 @@ class Crud implements CrudInterface
      *
      *  $crud = new Crud($em);
     */
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManager $em, string $class, string $table = null)
     {
-         $this->em = $em;
+         $em->registerClass($class, $table);
          $this->persistence = $em->getPersistence();
+         $this->em = $em;
     }
 
 
@@ -51,9 +51,9 @@ class Crud implements CrudInterface
      * @param string|null $table
      * @return void
     */
-    public function map(string $class, string $table = null)
+    public function with(string $class, string $table = null)
     {
-         $this->em->withClass($class, $table);
+         $this->em->registerClass($class, $table);
     }
 
 
