@@ -4,6 +4,8 @@ namespace Laventure\Component\Database\Connection;
 
 use Laventure\Component\Database\Configuration\ConfigurationBag;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
+use Laventure\Component\Database\Connection\Drivers\PDO\Contract\PdoConnectionInterface;
+use Laventure\Component\Database\Connection\Exception\ConnectionLogicException;
 
 
 /**
@@ -58,6 +60,24 @@ class ConnectionFactory
 
          return $connection;
      }
+
+
+     /**
+      * @param ConnectionInterface $connection
+      * @return PdoConnectionInterface
+     */
+     public static function pdoConnection(ConnectionInterface $connection): PdoConnectionInterface
+     {
+         if ($connection instanceof PdoConnectionInterface) {
+             return $connection;
+         }
+
+         throw new ConnectionLogicException("This connection '{$connection->getName()}' is not pdo connection.");
+     }
+
+
+
+
 
 
 

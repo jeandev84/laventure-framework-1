@@ -2,7 +2,7 @@
 namespace RepositoryNamespace;
 
 
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Foundation\Database\EntityManager;
 use Laventure\Component\Database\ORM\Repository\ServiceRepository;
 
 

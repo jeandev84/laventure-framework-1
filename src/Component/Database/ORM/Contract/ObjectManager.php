@@ -22,4 +22,13 @@ interface ObjectManager
      * @return mixed
     */
     public function remove($object);
+
+
+
+
+
+    /**
+     * @return mixed
+    */
+    public function flush();
 }

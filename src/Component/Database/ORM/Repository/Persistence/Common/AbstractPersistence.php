@@ -5,8 +5,8 @@ namespace Laventure\Component\Database\ORM\Repository\Persistence\Common;
 use Laventure\Component\Database\ORM\Builder\Delete;
 use Laventure\Component\Database\ORM\Builder\Select;
 use Laventure\Component\Database\ORM\Builder\Update;
+use Laventure\Component\Database\ORM\Common\EntityManager;
 use Laventure\Component\Database\ORM\Contract\PersistenceInterface;
-use Laventure\Component\Database\ORM\EntityManager;
 
 
 
@@ -29,6 +29,7 @@ abstract class AbstractPersistence implements PersistenceInterface
      * @var int
     */
     protected $id = 0;
+
 
 
 
@@ -86,7 +87,7 @@ abstract class AbstractPersistence implements PersistenceInterface
     /**
      * @return Select
     */
-    protected function selectQuery(): Select
+    public function selectQuery(): Select
     {
         return $this->em->createQueryBuilder()
                         ->select(["*"])
@@ -106,10 +107,12 @@ abstract class AbstractPersistence implements PersistenceInterface
     }
 
 
+
+
     /**
      * @return Delete
     */
-    protected function deleteQuery(): Delete
+    public function deleteQuery(): Delete
     {
         return $this->em->createQueryBuilder()->delete();
     }
@@ -122,7 +125,7 @@ abstract class AbstractPersistence implements PersistenceInterface
     */
     public function insert(array $attributes)
     {
-        $this->em->createQueryBuilder()->insert($attributes);
+        return $this->em->createQueryBuilder()->insert($attributes);
     }
 
 
@@ -133,6 +136,26 @@ abstract class AbstractPersistence implements PersistenceInterface
      * @return mixed
     */
     abstract public function update(array $attributes, $id);
+
+
+
+
+    /**
+     * @param array $attributes
+     * @param array $wheres
+     * @return mixed
+    */
+    abstract public function updateWheres(array $attributes, array $wheres);
+
+
+
+
+    /**
+     * @param array $wheres
+     * @return mixed
+    */
+    abstract public function deleteWheres(array $wheres);
+
 
 
 

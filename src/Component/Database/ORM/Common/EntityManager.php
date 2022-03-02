@@ -1,5 +1,5 @@
 <?php
-namespace Laventure\Component\Database\ORM;
+namespace Laventure\Component\Database\ORM\Common;
 
 
 use Closure;
@@ -7,11 +7,8 @@ use Exception;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
 use Laventure\Component\Database\Connection\Contract\QueryInterface;
 use Laventure\Component\Database\Connection\QueryFactory;
-use Laventure\Component\Database\ORM\Common\DataMapper;
 use Laventure\Component\Database\ORM\Contract\EntityManagerInterface;
-use Laventure\Component\Database\ORM\Contract\EntityRepositoryFactoryInterface;
 use Laventure\Component\Database\ORM\Contract\EntityRepositoryInterface;
-use Laventure\Component\Database\ORM\Contract\PersistenceInterface;
 use Laventure\Component\Database\ORM\Exception\EntityManagerException;
 use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Repository\EntityRepository;
@@ -23,7 +20,7 @@ use Laventure\Component\Database\Utils\Str;
 /**
  * @EntityManager
 */
-class EntityManager implements EntityManagerInterface
+abstract class EntityManager implements EntityManagerInterface
 {
 
     use DataMapper;
@@ -31,16 +28,16 @@ class EntityManager implements EntityManagerInterface
 
 
     /**
-     * @var PersistenceInterface
-    */
-    public $persistence;
+     * @var Persistence
+     */
+    protected $persistence;
 
 
 
 
     /**
      * @var ConnectionInterface
-    */
+     */
     public $connection;
 
 
@@ -65,7 +62,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @var string
-    */
+     */
     protected $tableAlias;
 
 
@@ -77,14 +74,6 @@ class EntityManager implements EntityManagerInterface
      * @var QueryInterface
      */
     protected $query;
-
-
-
-
-    /**
-     * @var array
-     */
-    protected $repositories = [];
 
 
 
@@ -108,15 +97,6 @@ class EntityManager implements EntityManagerInterface
      * @var array
      */
     protected $removes = [];
-
-
-
-
-    /**
-     * @var EntityRepositoryFactoryInterface
-     */
-    protected $repositoryFactory;
-
 
 
 
@@ -147,7 +127,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return ConnectionInterface
-    */
+     */
     public function getConnectionManager(): ConnectionInterface
     {
         return $this->connection;
@@ -171,25 +151,10 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return string
-    */
+     */
     public function getClassMap(): string
     {
         return $this->classMap;
-    }
-
-
-
-
-
-    /**
-     * @param EntityRepositoryFactoryInterface $repositoryFactory
-     * @return $this
-    */
-    public function withRepositoryFactory(EntityRepositoryFactoryInterface $repositoryFactory): self
-    {
-        $this->repositoryFactory = $repositoryFactory;
-
-        return $this;
     }
 
 
@@ -200,13 +165,13 @@ class EntityManager implements EntityManagerInterface
      * @param string|null $table
      * @return self
     */
-    public function withClassMap($concrete, string $table = null): self
+    public function withClass($concrete, string $table = null): self
     {
         $classMap = \is_object($concrete) ? get_class($concrete) : $concrete;
 
         $this->classMap  = $classMap;
 
-        $table = $table ?? $this->generateTableName($classMap);
+        $table = $table ?? $this->createTableName($classMap);
 
         $this->withTable($table);
 
@@ -220,11 +185,11 @@ class EntityManager implements EntityManagerInterface
     /**
      * @param string $tableName
      * @return $this
-    */
+     */
     public function withTable(string $tableName): self
     {
         $this->tableName  = $tableName;
-        $this->tableAlias = Str::substr($tableName);
+        $this->tableAlias = $this->createTableAlias($tableName);
 
         return $this;
     }
@@ -236,7 +201,7 @@ class EntityManager implements EntityManagerInterface
     /**
      * @param $tableAlias
      * @return $this
-    */
+     */
     public function withTableAlias($tableAlias): self
     {
         $this->tableAlias = $tableAlias;
@@ -250,10 +215,10 @@ class EntityManager implements EntityManagerInterface
     /**
      * @param object $concrete
      * @return array
-    */
+     */
     public function getClassMetadata(object $concrete): array
     {
-        $this->withClassMap(get_class($concrete));
+        $this->withClass(get_class($concrete));
 
         return $this->map($concrete);
     }
@@ -263,7 +228,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return string
-    */
+     */
     public function getTableName(): string
     {
         return $this->tableName;
@@ -274,84 +239,10 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return string
-    */
+     */
     public function getTableAlias(): string
     {
         return $this->tableAlias;
-    }
-
-
-
-
-
-    /**
-     * Get repository from storage entities
-     *
-     * @return EntityRepository
-     * @inheritDoc
-    */
-    public function getRepository($name): EntityRepository
-    {
-        $repository = $this->makeRepository($name);
-
-        if (! isset($this->repositories[$name])) {
-            $this->repositories[$name] = $repository;
-        }
-
-        return $this->repositories[$name];
-    }
-
-
-
-
-    /**
-     * @param $entityClass
-     * @return EntityRepository
-    */
-    protected function makeRepository($entityClass): EntityRepository
-    {
-         return (function () use ($entityClass) {
-
-             if (! $this->repositoryFactory) {
-
-                 $repositoryClass = sprintf('%sRepository', $entityClass);
-                 $repository = new $repositoryClass($this);
-
-                 if (! $repository instanceof EntityRepository) {
-                     throw new EntityManagerException("Repository {$repositoryClass} must be implements 'EntityRepository'");
-                 }
-
-                 return $repository;
-             }
-
-             return $this->repositoryFactory->createRepository($entityClass);
-
-         })();
-    }
-
-
-
-
-    /**
-     * @param $entityClass
-     * @param EntityRepositoryInterface $repository
-     * @return void
-    */
-    public function withRepository($entityClass, EntityRepositoryInterface $repository)
-    {
-          $this->repositories[$entityClass] = $repository;
-    }
-
-
-
-
-
-    /**
-     * @return array
-     */
-    public function getRepositories(): array
-    {
-        return $this->repositories;
     }
 
 
@@ -375,7 +266,7 @@ class EntityManager implements EntityManagerInterface
      * @param array $params
      * @return QueryInterface
      * @throws Exception
-    */
+     */
     public function createNativeQuery($sql, array $params = []): QueryInterface
     {
         $query = $this->createQuery();
@@ -391,7 +282,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return QueryInterface
-    */
+     */
     public function getQuery(): QueryInterface
     {
         return $this->query;
@@ -424,19 +315,13 @@ class EntityManager implements EntityManagerInterface
 
 
 
-
     /**
-     * Determine if given class name has repository in storage
-     *
-     *
-     * @param $name
-     * @return bool
-     */
-    public function hasRepository($name): bool
+     * @return EntityRepository
+    */
+    public function createRepository(): EntityRepository
     {
-        return isset($this->repositories[$name]);
+        return new EntityRepository($this, $this->getClassMap());
     }
-
 
 
 
@@ -461,31 +346,20 @@ class EntityManager implements EntityManagerInterface
 
 
     /**
-     * @return array
-     */
-    public function getPersists(): array
-    {
-        return $this->persists;
-    }
-
-
-
-
-    /**
      * @param $object
      * @return void
-    */
+     */
     public function remove($object)
     {
-        $this->preRemove($object);
+          $this->preRemove($object);
 
-        $data = $this->getClassMetadata($object);
+          $data = $this->getClassMetadata($object);
 
-        if (! empty($data['id'])) {
-            $this->persistence->delete((int)$data['id']);
-        }
+          if (! empty($data['id'])) {
+              $this->persistence->remove((int)$data['id']);
+          }
 
-        $this->removes[] = $object;
+          $this->removes[] = $object;
     }
 
 
@@ -493,7 +367,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return array
-     */
+    */
     public function getRemoves(): array
     {
         return $this->removes;
@@ -504,7 +378,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @inheritDoc
-    */
+     */
     public function transaction(Closure $closure)
     {
         (function () use ($closure) {
@@ -535,7 +409,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return void
-    */
+     */
     public function flush()
     {
         $this->preFlush();
@@ -549,7 +423,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return void
-    */
+     */
     protected function preFlush()
     {
         $this->persistUpdates();
@@ -560,7 +434,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @inheritDoc
-    */
+     */
     public function beginTransaction()
     {
         $this->connection->beginTransaction();
@@ -613,7 +487,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return void
-    */
+     */
     public function removeUpdates()
     {
         $this->updates = [];
@@ -634,7 +508,7 @@ class EntityManager implements EntityManagerInterface
 
     /**
      * @return void
-    */
+     */
     protected function persistUpdates()
     {
         foreach ($this->updates as $object) {
@@ -648,7 +522,7 @@ class EntityManager implements EntityManagerInterface
     /**
      * @param object $object
      * @return void
-    */
+     */
     protected function prePersist(object $object)
     {
         if (method_exists($object, 'prePersist')) {
@@ -663,7 +537,7 @@ class EntityManager implements EntityManagerInterface
     /**
      * @param object $object
      * @return void
-    */
+     */
     protected function preUpdate(object $object)
     {
         if (method_exists($object, 'preUpdate')) {
@@ -677,7 +551,7 @@ class EntityManager implements EntityManagerInterface
     /**
      * @param object $object
      * @return void
-    */
+     */
     protected function preRemove(object $object)
     {
         if (method_exists($object, 'preRemove')) {
@@ -693,8 +567,8 @@ class EntityManager implements EntityManagerInterface
     /**
      * @param ConnectionInterface $connection
      * @return Persistence
-     * @throws \Exception
-    */
+     * @throws Exception
+     */
     protected function makePersistence(ConnectionInterface $connection): Persistence
     {
         $persistence = (new PersistenceFactory($this))->make($connection);
@@ -710,11 +584,23 @@ class EntityManager implements EntityManagerInterface
      * @param string $entityClass
      * @return string
     */
-    protected function generateTableName(string $entityClass): string
+    public function createTableName(string $entityClass): string
     {
         $shortName = $this->getShortName($entityClass);
 
         return mb_strtolower(trim($shortName, 's')). 's';
+    }
+
+
+
+
+    /**
+     * @param string $tableName
+     * @return string
+    */
+    public function createTableAlias(string $tableName): string
+    {
+        return Str::substr($tableName);
     }
 
 
@@ -729,4 +615,14 @@ class EntityManager implements EntityManagerInterface
     {
         return  (new \ReflectionClass($name))->getShortName();
     }
+
+
+
+    /**
+     * Get repository from storage entities
+     *
+     * @return EntityRepository
+     * @inheritDoc
+    */
+    abstract public function getRepository($name): EntityRepository;
 }

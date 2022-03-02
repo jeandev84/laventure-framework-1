@@ -1,9 +1,8 @@
 <?php
-namespace Laventure\Foundation\Database\ORM\Common;
+namespace Laventure\Component\Database\ORM\Common;
 
 
-use Laventure\Foundation\Database\ORM\Exception\ModelException;
-
+use Laventure\Component\Database\ORM\Exception\ModelException;
 
 
 /**

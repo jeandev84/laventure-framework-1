@@ -35,6 +35,7 @@ class InsertBuilder extends SqlBuilder
     */
     protected function buildPrependSQL(): string
     {
+         // todo change logic for adapte to PDO and MYSQL
          return sprintf("INSERT INTO %s (%s) VALUES (%s)",
             $this->table,
             $this->getAttributeToInline(),

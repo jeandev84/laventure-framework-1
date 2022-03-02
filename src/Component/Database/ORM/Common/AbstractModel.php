@@ -1,20 +1,17 @@
 <?php
-namespace Laventure\Foundation\Database\ORM\Common;
+namespace Laventure\Component\Database\ORM\Common;
 
 use Exception;
-use Laventure\Component\Database\Connection\Exception\StatementException;
-use Laventure\Component\Database\Manager;
-use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
 use Laventure\Component\Database\ORM\Builder\Select;
+use Laventure\Component\Database\ORM\Model;
 use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Repository\ActiveRecord;
-use Laventure\Foundation\Database\ORM\Model;
 
 
 /**
  * @AbstractModel
 */
-class AbstractModel extends ActiveRecord
+abstract class AbstractModel extends ActiveRecord
 {
 
 
@@ -23,58 +20,27 @@ class AbstractModel extends ActiveRecord
 
 
 
-    /**
-     * @var array
+     /**
+      * @var array
      */
-    protected $selects = [];
+     protected $wheres = [];
 
 
 
-    /**
-     * @var array
+
+
+     /**
+      * @var Model
      */
-    protected $wheres = [];
-
-
-
-
-    /**
-     * @var string
-     */
-    protected $limit;
-
-
-
-
-    /**
-     * @var Model
-     */
-    public static $instance;
-
-
-
-    /**
-     * @var static
-     */
-    public static $qb;
-
-
-
-    /**
-     * @throws DatabaseManagerException
-    */
-    public function __construct()
-    {
-        parent::__construct(Manager::instance());
-    }
+     public static $instance;
 
 
 
 
     /**
      * @return Model
-     */
-    private static function make(): Model
+    */
+    private static function instance(): Model
     {
         if (! static::$instance) {
             static::$instance = new static();
@@ -88,32 +54,49 @@ class AbstractModel extends ActiveRecord
 
     /**
      * @return string
-     */
+    */
     private static function getTableName(): string
     {
-        return (new static())->getTable();
+        return self::instance()->getTable();
     }
 
 
 
 
     /**
+     * Create query builder
+     *
      * @return QueryBuilder
-     */
-    private static function createQueryBuilder(): QueryBuilder
+    */
+    private static function createQB(): QueryBuilder
     {
-        return (new static())->em->createQueryBuilder();
+        return static::instance()->entityManager->createQueryBuilder();
     }
 
 
 
+
     /**
-     * @throws StatementException
+     * @param $id
+     * @return false|mixed|object|void
     */
     public static function find($id)
     {
-        return static::make()->findOne($id);
+        return static::instance()->findOne($id);
     }
+
+
+
+
+    /**
+     * @param array $criteria
+     * @return array
+    */
+    public static function findBy(array $criteria): array
+    {
+        return static::instance()->repository->findBy($criteria);
+    }
+
 
 
 
@@ -124,12 +107,9 @@ class AbstractModel extends ActiveRecord
     */
     public static function select(...$args): Select
     {
-        $qb = static::createQueryBuilder();
+        $qb = static::createQB();
 
-        $model = static::make();
-        $model->selects[] = $args;
-
-        return self::$qb = $qb->select($args[0])->from(static::getTableName());
+        return $qb->select($args[0])->from(static::getTableName());
     }
 
 
@@ -141,10 +121,10 @@ class AbstractModel extends ActiveRecord
      * @param mixed $value
      * @param string $operator
      * @return self
-     */
+    */
     public static function where(string $column, $value, string $operator = '='): self
     {
-        $model = static::make();
+        $model = static::instance();
 
         $model->wheres[] = [$column, $value, $operator];
 
@@ -161,59 +141,61 @@ class AbstractModel extends ActiveRecord
     {
         return (function () {
 
-            $qb = static::select(["*"]);
-
-            $qb = $this->populateWheres($qb);
-
-            return $qb->getQuery()->getResult();
+            return $this->repository->findBy($this->wheres);
 
         })();
     }
+
+
 
 
     /**
      * @return false|mixed|object|void
-     */
+    */
     public function one()
     {
         return (function () {
 
-            $qb = static::select(["*"]);
+            return $this->repository->findOneBy($this->wheres);
 
-            $qb = $this->populateWheres($qb);
-
-            return $qb->getQuery()->getOneOrNullResult();
         })();
     }
 
 
+
+
+
     /**
      * @return array
-     */
+    */
     public static function all(): array
     {
-        if (self::make()->wheres) {
-            return self::make()->get();
-        }
-
-        return static::make()->findAll();
+        return static::instance()->findAll();
     }
 
 
+
+
     /**
+     * Product::remove(3);
+     *
+     * Product::where('tile', 'Book')->remove();
+     *
      * @param null $id
-     * @return mixed
+     * @return false
     */
-    public static function remove($id = null)
+    public static function remove($id = null): bool
     {
-        $model = static::make(); // todo make via clone $model = clone new static();
+        $model = static::instance();
 
         if ($id) {
-            return $model->delete($id);
+            $model->delete($id);
+            return true;
         }
 
         if($wheres = $model->wheres) {
-            return $model->delete($id, $wheres);
+            $model->persistence->deleteWheres($wheres);
+            return true;
         }
 
         return false;
@@ -257,10 +239,10 @@ class AbstractModel extends ActiveRecord
         $id = (int) $this->getAttribute($this->primaryKey);
 
         if ($id) {
-            $this->update($attributes, [$this->primaryKey => $id])->execute();
+            $this->update($attributes, $id);
         }else{
             $this->insert($attributes);
-            $this->setAttribute($this->primaryKey, $this->em->lastInsertId());
+            $this->setAttribute($this->primaryKey, $this->entityManager->lastInsertId());
         }
     }
 }

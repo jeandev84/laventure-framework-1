@@ -9,9 +9,9 @@ use Laventure\Component\Database\Connection\Exception\ConnectionException;
 use Laventure\Component\Database\Manager;
 use Laventure\Component\Database\Migration\Migrator;
 use Laventure\Component\Database\ORM\Contract\EntityManagerInterface;
-use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\FileSystem\FileSystem;
-use Laventure\Foundation\Database\ORM\Factory\EntityRepositoryFactory;
+use Laventure\Foundation\Database\EntityManager;
+use Laventure\Foundation\Database\ModelEntityManager;
 
 
 /**
@@ -32,13 +32,13 @@ class DatabaseServiceProvider extends ServiceProvider implements BootableService
     {
         // Registration database manager for working with repositories
         $this->app->singleton('db.laventure', function (Config $config) {
-            return $this->makeConnection($config, new EntityRepositoryFactory($this->app));
+            return $this->makeLaventureConnection($config);
         });
 
 
         // boot database Manager for working with Model
         $this->app->singleton(Manager::class, function (Config $config) {
-            return $this->makeConnection($config);
+            return $this->makeCapsuleConnection($config);
         });
 
         // boot manager for working with models
@@ -118,22 +118,36 @@ class DatabaseServiceProvider extends ServiceProvider implements BootableService
 
     /**
      * @param Config $config
-     * @param EntityRepositoryFactory|null $resolver
      * @return Manager
-     * @throws ConnectionException
+     * @throws \Exception
     */
-    protected function makeConnection(Config $config, EntityRepositoryFactory $resolver = null): Manager
+    protected function makeLaventureConnection(Config $config): Manager
     {
         $manager = new Manager();
         $manager->addConnection($config['database'], $config['database']['connection']);
 
-        $em = new EntityManager($manager->connection());
+        $em = new EntityManager($manager->getConnection(), $this->app);
 
-        if ($resolver) {
-            $em->withRepositoryFactory($resolver);
-        }
+        $manager->setEntityManager($em);
 
-        $manager->withEntityManager($em);
+        return $manager;
+    }
+
+
+
+    /**
+     * @param Config $config
+     * @return Manager
+     * @throws ConnectionException
+     * @throws \Exception
+    */
+    protected function makeCapsuleConnection(Config $config): Manager
+    {
+        $manager = $this->makeLaventureConnection($config);
+
+        $em = new ModelEntityManager($manager->getConnection());
+
+        $manager->setEntityManager($em);
 
         return $manager;
     }

@@ -3,7 +3,7 @@ namespace Laventure\Component\Database\ORM\Repository;
 
 
 use Laventure\Component\Database\ORM\Builder\Select;
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\ORM\Common\EntityManager;
 
 
 /**
@@ -24,23 +24,7 @@ class EntityRepository implements EntityRepositoryInterface
       /**
        * @var string
       */
-      protected $entityClass;
-
-
-
-
-      /**
-       * @var string
-      */
-      private $table;
-
-
-
-
-      /**
-       * @var string
-      */
-      private $alias;
+      private $entityClass;
 
 
 
@@ -51,7 +35,8 @@ class EntityRepository implements EntityRepositoryInterface
       */
       public function __construct(EntityManager $em, string $entityClass)
       {
-            $this->registerClassMap($em, $entityClass);
+             $this->em = $em;
+             $this->entityClass = $entityClass;
       }
 
 
@@ -62,11 +47,12 @@ class EntityRepository implements EntityRepositoryInterface
       */
       public function createQueryBuilder(string $alias): Select
       {
-           $this->em->withTableAlias($alias);
+          $this->em->withClass($this->entityClass);
+          $this->em->withTableAlias($alias);
 
            return $this->em->createQueryBuilder()
                            ->select(["*"])
-                           ->from($this->table, $alias);
+                           ->from($this->getTableName(), $alias);
 
       }
 
@@ -96,17 +82,19 @@ class EntityRepository implements EntityRepositoryInterface
        public function findAll(): array
        {
           return (function () {
-              return $this->createQueryBuilder($this->alias)
+              return $this->createQueryBuilder($this->getTableAlias())
                           ->getQuery()
                           ->getResult();
           })();
       }
 
 
+
+
       /**
        * @param array $criteria
        * @return array
-       */
+      */
       public function findBy(array $criteria): array
       {
           return (function () use ($criteria) {
@@ -120,17 +108,23 @@ class EntityRepository implements EntityRepositoryInterface
 
 
 
-     /**
-      * @param EntityManager $em
-      * @param $entityClass
-      * @return void
-     */
-     private function registerClassMap(EntityManager $em, $entityClass)
-     {
-         $em->withClassMap($entityClass);
-         $this->table = $em->getTableName();
-         $this->alias = $em->getTableAlias();
-         $this->entityClass = $entityClass;
-         $this->em = $em;
-     }
+
+      /**
+       * @return string
+      */
+      private function getTableName(): string
+      {
+          return $this->em->createTableName($this->entityClass);
+      }
+
+
+
+
+      /**
+       * @return string
+      */
+      private function getTableAlias(): string
+      {
+         return $this->em->createTableAlias($this->getTableName());
+      }
 }

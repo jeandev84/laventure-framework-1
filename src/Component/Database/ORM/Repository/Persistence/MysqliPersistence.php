@@ -63,4 +63,20 @@ class MysqliPersistence extends AbstractPersistence
     {
         // TODO: Implement find() method.
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateWheres(array $attributes, array $wheres)
+    {
+        // TODO: Implement updateWheres() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteWheres(array $wheres)
+    {
+        // TODO: Implement deleteWheres() method.
+    }
 }

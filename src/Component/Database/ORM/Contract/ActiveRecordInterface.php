@@ -37,19 +37,19 @@ interface ActiveRecordInterface
 
         /**
          * @param array $attributes
-         * @param array $wheres
+         * @param $id
          * @return mixed
         */
-        public function update(array $attributes, array $wheres);
+        public function update(array $attributes, $id);
+
 
 
 
 
         /**
          * @param $id
-         * @param array $criteria
          * @return mixed
         */
-        public function delete($id, array $criteria = []);
+        public function delete($id);
 
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Laventure\Foundation\Database\ORM\Exception;
+namespace Laventure\Component\Database\ORM\Exception;
 
 /**
  * @ModelException

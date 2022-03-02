@@ -7,7 +7,8 @@ use Closure;
 use Laventure\Component\Database\Builder\Contract\SqlQueryBuilderInterface;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
 use Laventure\Component\Database\Connection\Contract\QueryInterface;
-use Laventure\Component\Database\ORM\Exception\EntityManagerException;
+
+
 
 /**
  * @EntityManagerInterface
@@ -119,12 +120,4 @@ interface EntityManagerInterface extends ObjectManager
      * @return QueryInterface
     */
     public function createNativeQuery($sql);
-
-
-
-
-    /**
-     * @return mixed
-    */
-    public function flush();
 }

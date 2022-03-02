@@ -4,7 +4,7 @@ namespace Laventure\Foundation\Provider\Reference;
 
 use Laventure\Component\Container\ServiceProvider\ServiceProvider;
 use Laventure\Component\Database\Migration\Migrator;
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Foundation\Database\EntityManager;
 
 
 /**

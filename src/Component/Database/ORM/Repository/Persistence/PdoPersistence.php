@@ -32,10 +32,7 @@ class PdoPersistence extends AbstractPersistence
     */
     public function delete(int $id)
     {
-         $this->deleteQuery()
-              ->where('id = :id')
-              ->setParameter('id', $id)
-              ->execute();
+         return $this->deleteWheres(['id' => $id]);
     }
 
 
@@ -45,11 +42,9 @@ class PdoPersistence extends AbstractPersistence
     */
     public function update(array $attributes, $id)
     {
-         $this->updateQuery($attributes)
-              ->where('id = :id')
-              ->setParameter('id', $id)
-              ->execute();
+         $this->updateWheres($attributes, ['id' => $id]);
     }
+
 
 
 
@@ -67,5 +62,42 @@ class PdoPersistence extends AbstractPersistence
          $qb->setParameters($criteria);
 
          return $qb;
+    }
+
+
+
+
+
+    /**
+     * @inheritDoc
+    */
+    public function updateWheres(array $attributes, array $wheres)
+    {
+         $qb = $this->updateQuery($attributes);
+
+         foreach (array_keys($wheres) as $column) {
+            $qb->where("$column = :{$column}");
+         }
+
+         $qb->setParameters($wheres);
+
+         $qb->execute();
+    }
+
+
+
+
+    /**
+     * @inheritDoc
+    */
+    public function deleteWheres(array $wheres)
+    {
+        $qb = $this->deleteQuery();
+
+        foreach (array_keys($wheres) as $column) {
+            $qb->where("$column = :{$column}");
+        }
+
+        $qb->execute();
     }
 }

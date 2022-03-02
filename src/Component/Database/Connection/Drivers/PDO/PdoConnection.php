@@ -36,7 +36,6 @@ class PdoConnection implements PdoConnectionInterface
 
 
 
-
       /**
        * @param $config
        * @return void

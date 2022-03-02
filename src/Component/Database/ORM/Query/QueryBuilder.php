@@ -6,7 +6,7 @@ use Laventure\Component\Database\ORM\Builder\Delete;
 use Laventure\Component\Database\ORM\Builder\Insert;
 use Laventure\Component\Database\ORM\Builder\Select;
 use Laventure\Component\Database\ORM\Builder\Update;
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\ORM\Common\EntityManager;
 
 
 /**
@@ -75,6 +75,7 @@ class QueryBuilder
       */
       public function insert(array $attributes)
       {
+          // todo check a correct insert or update query (pdo/mysqli)
           return (function () use ($attributes) {
 
               $qb = new Insert($attributes, $this->table);

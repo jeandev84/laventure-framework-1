@@ -24,22 +24,7 @@ class Persistence
     /**
      * @var array
     */
-    protected $insertions = [];
-
-
-
-    /**
-     * @var array
-    */
-    protected $updates = [];
-
-
-
-
-    /**
-     * @var array
-    */
-    protected $deletions  = [];
+    protected $deletes  = [];
 
 
 
@@ -84,14 +69,13 @@ class Persistence
     }
 
 
-
     /**
      * @param $id
-     * @return void
+     * @return mixed
     */
     public function retrieve($id)
     {
-        $this->persistence->retrieve($id);
+        return $this->persistence->retrieve($id);
     }
 
 
@@ -99,20 +83,15 @@ class Persistence
 
     /**
      * @param array $data
-     * @return void
+     * @return $this
     */
-    public function persist(array $data)
+    public function persist(array $data): self
     {
-        $id = $this->generateId();
-
-        if (! empty($data['id'])) {
-            $id = $data['id'];
-            $this->updates[$id] = $data;
-        }else{
-            $this->insertions[$id] = $data;
-        }
+        $id = $data['id'] ?? $this->generateId();
 
         $this->persists[$id] = $data;
+
+        return $this;
     }
 
 
@@ -120,11 +99,13 @@ class Persistence
 
     /**
      * @param int $id
-     * @return void
+     * @return $this
     */
-    public function delete(int $id)
+    public function remove(int $id): self
     {
-        $this->deletions[$id] = $id;
+        $this->deletes[] = $id;
+
+        return $this;
     }
 
 
@@ -136,37 +117,71 @@ class Persistence
     */
     public function flush()
     {
-        $this->flushPersists();
-        $this->flushDeletions();
-    }
-
-
-
-    protected function flushPersists()
-    {
-        foreach ($this->persists as $attributes) {
-            $this->persistence->persist($attributes);
-        }
-    }
-
-
-
-    protected function flushDeletions()
-    {
-        foreach ($this->deletions as $id) {
-            $this->persistence->delete($id);
-        }
+        $this->saveStack();
+        $this->deleteStack();
     }
 
 
 
 
     /**
-     * @return array
+     * @param array $attributes
+     * @param $id
+     * @return mixed
     */
-    public function getInsertions(): array
+    public function update(array $attributes, $id)
     {
-        return $this->insertions;
+         return $this->persistence->update($attributes, $id);
+    }
+
+
+
+
+
+    /**
+     * @param array $attributes
+     * @return void
+    */
+    public function insert(array $attributes)
+    {
+        return $this->persistence->insert($attributes);
+    }
+
+
+
+
+    /**
+     * @param int $id
+     * @return mixed
+    */
+    public function delete(int $id)
+    {
+        return $this->persistence->delete($id);
+    }
+
+
+
+
+    /**
+     * @param array $attributes
+     * @param array $wheres
+     * @return mixed
+    */
+    public function updateWheres(array $attributes, array $wheres)
+    {
+        return $this->persistence->updateWheres($attributes, $wheres);
+    }
+
+
+
+
+    /**
+     * @param array $wheres
+     * @return mixed
+    */
+    public function deleteWheres(array $wheres)
+    {
+         return $this->persistence->deleteWheres($wheres);
     }
 
 
@@ -174,9 +189,39 @@ class Persistence
     /**
      * @return array
     */
-    public function getDeletions(): array
+    public function getDeletes(): array
     {
-        return $this->deletions;
+        return $this->deletes;
     }
+
+
+
+
+    /**
+     * @return void
+    */
+    public function saveStack()
+    {
+        if ($this->persists) {
+            foreach ($this->persists as $attributes) {
+                $this->persistence->persist($attributes);
+            }
+        }
+    }
+
+
+
+    /**
+     * @return void
+    */
+    public function deleteStack()
+    {
+        if ($this->deletes) {
+            foreach ($this->deletes as $id) {
+                $this->persistence->delete($id);
+            }
+        }
+    }
+
 
 }

@@ -1,7 +1,8 @@
 <?php
 namespace Laventure\Component\Database\ORM\Query;
 
-use Laventure\Component\Database\ORM\EntityManager;
+use Exception;
+use Laventure\Component\Database\ORM\Common\EntityManager;
 use Laventure\Component\Database\ORM\Query\Builders\MysqlQueryBuilder;
 use Laventure\Component\Database\ORM\Query\Builders\PostgresQueryBuilder;
 
@@ -13,11 +14,13 @@ class QueryBuilderFactory
 {
 
       /**
-       * @throws \Exception
+        * @param EntityManager $em
+        * @return QueryBuilder
+        * @throws Exception
       */
-      public static function make(EntityManager $em)
+      public static function make(EntityManager $em): QueryBuilder
       {
-            $connection = $em->getPdoConnection();
+            $connection = $em->getConnectionManager();
 
             switch ($name = $connection->getName()) {
                 case 'mysql':
@@ -28,6 +31,6 @@ class QueryBuilderFactory
                 break;
             }
 
-          throw new \Exception("unable connection driver {$name}");
+          throw new Exception("unable connection driver {$name}");
       }
 }

@@ -2,12 +2,8 @@
 namespace Laventure\Component\Database\ORM\Query;
 
 
-use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
-use Laventure\Component\Database\Connection\Contract\QueryEntityMapperInterface;
 use Laventure\Component\Database\Connection\Contract\QueryInterface;
-use Laventure\Component\Database\Connection\Exception\StatementException;
-use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query as PDOQuery;
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\ORM\Common\EntityManager;
 
 
 /**

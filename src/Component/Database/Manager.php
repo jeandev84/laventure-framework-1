@@ -2,18 +2,19 @@
 namespace Laventure\Component\Database;
 
 
-use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
+use Exception;
+use Laventure\Component\Database\Connection\ConnectionFactory;
 use Laventure\Component\Database\Connection\Drivers\PDO\Contract\PdoConnectionInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query;
 use Laventure\Component\Database\Connection\Exception\ConnectionException;
 use Laventure\Component\Database\Managers\DatabaseManager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\ORM\Common\EntityManager;
 use Laventure\Component\Database\ORM\Query\QueryBuilder;
 use Laventure\Component\Database\ORM\Query\QueryBuilderFactory;
 use Laventure\Component\Database\Schema\Schema;
-use Laventure\Foundation\Database\Exception\LaventureManagerException;
 use LogicException;
+use PDO;
 
 
 /**
@@ -61,18 +62,18 @@ class Manager extends DatabaseManager
     }
 
 
-
     /**
      * @return PdoConnectionInterface
      * @throws ConnectionException
      * @throws LogicException
+     * @throws Exception
     */
     public function getConnection(): PdoConnectionInterface
     {
         $connection = $this->connection();
 
         if (! $connection instanceof PdoConnectionInterface) {
-            throw new \Exception("Manager ". get_class() . " use PDO connection.");
+            throw new Exception("Manager ". get_class() . " use PDO connection.");
         }
 
         return $connection;
@@ -81,33 +82,26 @@ class Manager extends DatabaseManager
 
 
     /**
-     * @return \PDO
+     * @return PDO
      * @throws ConnectionException
-     * @throws LogicException|LaventureManagerException
+     * @throws LogicException
     */
-    public function pdo(): \PDO
+    public function pdo(): PDO
     {
         return $this->getConnection()->getPdo();
     }
 
 
-
-
     /**
-     * @param null $name
-     * @return ConnectionInterface
+     * @param string|null $name
+     * @return PdoConnectionInterface
      * @throws ConnectionException
-     * @throws LogicException
     */
-    public function connection($name = null): ConnectionInterface
+    public function pdoConnection(string $name = null): PdoConnectionInterface
     {
-        $connection = parent::connection($name);
+        $connection = $this->connection($name);
 
-        if(! $this->isPdoConnection($connection)) {
-            throw new LogicException("Capsule manager implements service pdo connection.");
-        }
-
-        return $connection;
+        return ConnectionFactory::pdoConnection($connection);
     }
 
 
@@ -115,7 +109,7 @@ class Manager extends DatabaseManager
     /**
      * @param $connection
      * @return bool
-     */
+    */
     protected function isPdoConnection($connection): bool
     {
         return $connection instanceof PdoConnectionInterface;
@@ -129,7 +123,7 @@ class Manager extends DatabaseManager
      * @return Manager
      *
      * @throws DatabaseManagerException
-     */
+    */
     public static function instance(): Manager
     {
         if (static::$instance) {
@@ -141,21 +135,23 @@ class Manager extends DatabaseManager
 
 
 
+
     /**
      * @param EntityManager $em
-     */
-    public function withEntityManager(EntityManager $em)
+    */
+    public function setEntityManager(EntityManager $em)
     {
         $this->em = $em;
     }
 
 
 
+
     /**
-     * Get entity manager
+     * Get current entity manager
      *
      * @return EntityManager
-     */
+    */
     public function getEntityManager(): EntityManager
     {
         return $this->em;
@@ -187,6 +183,9 @@ class Manager extends DatabaseManager
     }
 
 
+
+
+
     /**
      * Create a native query
      *
@@ -215,17 +214,13 @@ class Manager extends DatabaseManager
      *                      ->execute();
      * @param string $name
      * @return QueryBuilder
-     * @throws \Exception
-     */
-    public function table(string $name = ''): QueryBuilder
+     * @throws Exception
+    */
+    public function table(string $name): QueryBuilder
     {
-        $qb = QueryBuilderFactory::make($this->em);
+        $this->em->withTable($name);
 
-        if ($name) {
-            $qb->table($name);
-        }
-
-        return $qb;
+        return QueryBuilderFactory::make($this->em);
     }
 
 

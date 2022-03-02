@@ -180,19 +180,22 @@ class Query implements QueryInterface, QueryEntityMapperInterface
 
     /**
      * @inheritDoc
+     * @return bool
      * @throws StatementException
     */
-    public function execute()
+    public function execute(): bool
     {
         try {
 
             if ($this->bindValues) {
-                 $this->executeQueryWithBindValues();
+                 $this->executeQueryBindParams();
             }else {
                 if ($this->statement->execute($this->params)) {
                     $this->addToCache($this->sql, $this->params);
                 }
             }
+
+            return true;
 
         } catch (\PDOException $e) {
 
@@ -304,7 +307,7 @@ class Query implements QueryInterface, QueryEntityMapperInterface
     /**
      * @return void
     */
-    private function executeQueryWithBindValues()
+    private function executeQueryBindParams()
     {
         $params = $this->populateBindValues();
 

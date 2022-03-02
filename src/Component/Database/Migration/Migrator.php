@@ -3,11 +3,10 @@ namespace Laventure\Component\Database\Migration;
 
 
 use Exception;
-use Laventure\Component\Database\Migration\Common\AbstractMigrator;
 use Laventure\Component\Database\Migration\Contract\MigrationInterface;
 use Laventure\Component\Database\Migration\Contract\MigratorInterface;
 use Laventure\Component\Database\Migration\Exception\MigrationException;
-use Laventure\Component\Database\ORM\EntityManager;
+use Laventure\Component\Database\ORM\Common\EntityManager;
 use Laventure\Component\Database\Schema\BluePrint;
 use Laventure\Component\Database\Schema\Schema;
 
@@ -28,7 +27,7 @@ class Migrator implements MigratorInterface
 
     /**
      * @var MigrationCollection
-     */
+    */
     protected $migrations;
 
 
@@ -36,7 +35,7 @@ class Migrator implements MigratorInterface
 
     /**
      * @var EntityManager
-     */
+    */
     protected $em;
 
 
@@ -53,7 +52,7 @@ class Migrator implements MigratorInterface
 
     /**
      * @param EntityManager $em
-     */
+    */
     public function __construct(EntityManager $em)
     {
          $this->em         = $em;
