@@ -236,9 +236,28 @@ abstract class EntityManager implements EntityManagerInterface
     {
         $this->registerClass(get_class($concrete));
 
-        return $this->map($concrete);
+        $attributes = $this->map($concrete);
+        
+        return $this->resolvedMetadata($attributes);
     }
 
+
+    
+    
+    /**
+     * @param array $attributes
+     * @return array
+    */
+    public function resolvedMetadata(array $attributes): array
+    {
+         foreach ($attributes as $property => $value) {
+             if ($value instanceof \DateTime) {
+                 $attributes[$property] = $value->format('Y-m-d H:i:s');
+             }
+         }
+
+         return $attributes;
+    }
 
 
 
@@ -359,12 +378,17 @@ abstract class EntityManager implements EntityManagerInterface
     */
     public function persist($object): self
     {
-        $this->preUpdate($object);
-        $this->prePersist($object);
+        $id = $this->persistence->generateId();
+
+        if (method_exists($object, 'getId')) {
+             if ($id = $object->getId()) {
+                 $this->preUpdate($object);
+             }else {
+                 $this->prePersist($object);
+             }
+        }
 
         $data = $this->getClassMetadata($object);
-
-        $id = $data[$this->identity] ?? $this->persistence->generateId();
 
         $this->persists[$id] = $data;
 
@@ -400,7 +424,7 @@ abstract class EntityManager implements EntityManagerInterface
 
     /**
      * @inheritDoc
-     */
+    */
     public function transaction(Closure $closure)
     {
         (function () use ($closure) {

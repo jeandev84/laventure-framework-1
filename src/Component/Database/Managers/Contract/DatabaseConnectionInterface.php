@@ -1,18 +1,18 @@
 <?php
-namespace Laventure\Component\Database\Managers;
+namespace Laventure\Component\Database\Managers\Contract;
 
 
 /**
- * @DatabaseInterface
+ * @DatabaseConnectionInterface
 */
-interface DatabaseInterface
+interface DatabaseConnectionInterface
 {
 
       /**
-       * @param array $config
+       * @param array $credentials
        * @return mixed
       */
-      public function open(array $config);
+      public function open(array $credentials);
 
 
 

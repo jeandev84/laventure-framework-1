@@ -42,7 +42,7 @@ class ConfigurationServiceProvider extends ServiceProvider
      */
     protected function loadArrayResource(FileSystem $fs): ArrayLoader
     {
-        $data = $fs->loadResourcesByName('/config/*.php');
+        $data = $fs->loadResourcesByName('/config/params/*.php');
 
         return new ArrayLoader($data);
     }

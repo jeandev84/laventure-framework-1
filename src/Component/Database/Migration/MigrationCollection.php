@@ -27,7 +27,7 @@ class MigrationCollection implements MigrationCollectionInterface
       /**
        * @var array
       */
-      protected $files = [];
+      protected $migrationFiles = [];
 
 
 
@@ -38,8 +38,10 @@ class MigrationCollection implements MigrationCollectionInterface
       */
       public function addMigration(MigrationInterface $migration): MigrationInterface
       {
-           $this->migrations[$migration->getName()] = $migration;
-           $this->files[$migration->getName()]      = $migration->getPath();
+           $name = $migration->getName();
+
+           $this->migrations[$name] = $migration;
+           $this->migrationFiles[$name] = $migration->getPath();
 
            return $migration;
       }
@@ -63,15 +65,15 @@ class MigrationCollection implements MigrationCollectionInterface
 
 
     /**
-     * @param array $appliedMigrations
+     * @param array $oldMigrations
      * @return array
     */
-    public function getNewMigrations(array $appliedMigrations): array
+    public function getNewMigrations(array $oldMigrations): array
     {
         $migrations = [];
 
         foreach ($this->getMigrations() as $migration) {
-            if (! \in_array($migration->getName(), $appliedMigrations)) {
+            if (! \in_array($migration->getName(), $oldMigrations)) {
                 $migrations[] = $migration;
             }
         }
@@ -92,22 +94,22 @@ class MigrationCollection implements MigrationCollectionInterface
      }
 
 
-
-
     /**
-     * @param string $name
+     * @param MigrationInterface $migration
      * @return void
     */
-    public function removeMigration(string $name)
+    public function removeMigration(MigrationInterface $migration)
     {
-        if (! $this->has($name)) {
-            throw new MigrationException('Cannot remove migration : '. $name);
-        }
+        $name = $migration->getName();
 
-        $migration = $this->migrations[$name];
+        // check if migration exists
+        if (! $this->has($name)) {
+            throw new MigrationException("Migration '{$name}' is not available for removing.");
+        }
 
         // remove migration from the list
         unset($this->migrations[$name]);
+
 
         // remove migration file
         $this->removeMigrationFile($migration);
@@ -138,7 +140,8 @@ class MigrationCollection implements MigrationCollectionInterface
     public function removeMigrationFile(MigrationInterface $migration)
     {
         @unlink($migration->getPath());
-        unset($this->files[$migration->getName()]);
+
+        unset($this->migrationFiles[$migration->getName()]);
     }
 
 
@@ -174,7 +177,7 @@ class MigrationCollection implements MigrationCollectionInterface
     */
     public function getMigrationFiles(): array
     {
-        return $this->files;
+        return $this->migrationFiles;
     }
 
 
@@ -185,7 +188,7 @@ class MigrationCollection implements MigrationCollectionInterface
     */
     public function getMigrationFilesToRemove(): array
     {
-        return array_values($this->files);
+        return array_values($this->migrationFiles);
     }
 
 }

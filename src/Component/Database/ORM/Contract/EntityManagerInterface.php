@@ -52,15 +52,6 @@ interface EntityManagerInterface extends ObjectManager
 
 
 
-    /**
-     * @param Closure $closure
-     * @return mixed
-    */
-    public function transaction(Closure $closure);
-
-
-
-
 
     /**
      * @return mixed

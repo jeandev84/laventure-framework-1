@@ -4,8 +4,8 @@ namespace Laventure\Component\Database\ORM\Repository\Common;
 
 
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
-use Laventure\Component\Database\Manager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
+use Laventure\Component\Database\Managers\Manager;
 use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\ORM\Repository\EntityRepository;
 

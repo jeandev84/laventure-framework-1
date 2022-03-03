@@ -2,7 +2,7 @@
 namespace Laventure\Component\Database\ORM\Contract;
 
 
-use Laventure\Component\Database\Managers\DatabaseManagerInterface;
+use Laventure\Component\Database\Managers\Contract\DatabaseManagerInterface;
 
 
 /**

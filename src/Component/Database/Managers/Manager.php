@@ -1,5 +1,5 @@
 <?php
-namespace Laventure\Component\Database;
+namespace Laventure\Component\Database\Managers;
 
 
 use Exception;
@@ -7,7 +7,6 @@ use Laventure\Component\Database\Connection\ConnectionFactory;
 use Laventure\Component\Database\Connection\Drivers\PDO\Contract\PdoConnectionInterface;
 use Laventure\Component\Database\Connection\Drivers\PDO\Statement\Query;
 use Laventure\Component\Database\Connection\Exception\ConnectionException;
-use Laventure\Component\Database\Managers\DatabaseManager;
 use Laventure\Component\Database\Managers\Exception\DatabaseManagerException;
 use Laventure\Component\Database\ORM\EntityManager;
 use Laventure\Component\Database\ORM\Query\QueryBuilder;
@@ -130,7 +129,7 @@ class Manager extends DatabaseManager
             return static::$instance;
         }
 
-        throw new DatabaseManagerException('Connection to database is not booted!');
+        throw new DatabaseManagerException('Connection to database is not booted globally.');
     }
 
 

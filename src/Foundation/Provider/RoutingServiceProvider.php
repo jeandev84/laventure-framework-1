@@ -87,8 +87,8 @@ class RoutingServiceProvider extends ServiceProvider
     private function loadRoutes()
     {
         $this->app->call(function (FileSystem $fs) {
-            $fs->load('/routes/api.php');
-            $fs->load('/routes/web.php');
+            $fs->load('/config/routes/api.php');
+            $fs->load('/config/routes/web.php');
         });
     }
 

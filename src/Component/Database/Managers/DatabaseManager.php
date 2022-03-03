@@ -6,6 +6,7 @@ use Exception;
 use Laventure\Component\Database\Connection\ConnectionFactory;
 use Laventure\Component\Database\Connection\Contract\ConnectionInterface;
 use Laventure\Component\Database\Connection\Exception\ConnectionException;
+use Laventure\Component\Database\Managers\Contract\DatabaseManagerInterface;
 use RuntimeException;
 
 
@@ -60,7 +61,7 @@ class DatabaseManager implements DatabaseManagerInterface
     {
          if (! $this->connection) {
              $this->setDefaultConnection($name);
-             $this->setConfigurations($config);
+             $this->setConfiguration($name, $config);
          }
     }
 
@@ -102,6 +103,10 @@ class DatabaseManager implements DatabaseManagerInterface
     */
     public function setConfiguration($name, $config): self
     {
+        if (isset($config[$name])) {
+            $config = $config[$name];
+        }
+
         $this->factory->configs->add($name, $config);
 
         return $this;

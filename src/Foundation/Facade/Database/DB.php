@@ -3,7 +3,7 @@ namespace Laventure\Foundation\Facade\Database;
 
 
 use Laventure\Component\Container\Facade\Facade;
-use Laventure\Component\Database\Manager;
+use Laventure\Component\Database\Managers\Manager;
 
 
 /**

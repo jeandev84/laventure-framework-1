@@ -47,7 +47,7 @@ class PdoConnection implements PdoConnectionInterface
 
               return (function () use ($config) {
 
-                  $name = $config['driver'];
+                  $name = $config['connection'];
 
                   if (Connection::has($name)) {
                       $this->setConnection($this->makeConnection([
@@ -167,7 +167,7 @@ class PdoConnection implements PdoConnectionInterface
      protected function makeDSN($config): string
      {
         return sprintf('%s:host=%s;port=%s;dbname=%s;',
-            $config['driver'],
+            $config['connection'],
             $config['host'],
             $config['port'],
             $config['database']

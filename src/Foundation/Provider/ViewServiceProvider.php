@@ -19,15 +19,15 @@ class ViewServiceProvider extends ServiceProvider
     public function register()
     {
          $this->app->singleton('view', function () {
-              return new Renderer(sprintf('%s/templates', $this->app['path']));
+              return new Renderer(sprintf('%s/resources/views', $this->app['path']));
          });
 
          $this->app->singleton(Renderer::class, function () {
-            return $this->app['view'];
+              return $this->app['view'];
          });
 
          $this->app->singleton(RendererInterface::class, function () {
-            return $this->app['view'];
+              return $this->app['view'];
          });
     }
 }

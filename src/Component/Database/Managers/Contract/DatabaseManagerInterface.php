@@ -1,5 +1,5 @@
 <?php
-namespace Laventure\Component\Database\Managers;
+namespace Laventure\Component\Database\Managers\Contract;
 
 
 /**
