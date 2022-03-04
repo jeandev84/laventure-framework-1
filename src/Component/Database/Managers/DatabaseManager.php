@@ -87,7 +87,9 @@ class DatabaseManager implements DatabaseManagerInterface
     */
     public function setConnections(array $connections): self
     {
-          $this->factory->connections->addConnections($connections);
+          foreach ($connections as $connection) {
+              $this->setConnection($connection);
+          }
 
           return $this;
     }
@@ -121,7 +123,9 @@ class DatabaseManager implements DatabaseManagerInterface
     */
     public function setConfigurations(array $config): self
     {
-         $this->factory->configs->merge($config);
+         foreach ($config as $key => $params) {
+             $this->setConfiguration($key, $params);
+         }
 
          return $this;
     }

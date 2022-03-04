@@ -20,13 +20,26 @@ class MysqlConnection extends PdoConnection
     }
 
 
+
+
     /**
      * @inheritDoc
      * @throws LogicException
     */
     public function createDatabase()
     {
-         $sqlGeneric = sprintf('CREATE DATABASE %s IF NOT EXIST;', $this->config['database']);
+         /*
+           todo implements this syntax
+           Example
+           CREATE DATABASE IF NOT EXISTS movies CHARACTER SET latin1 COLLATE latin1_swedish_ci
+         */
+
+         $sqlGeneric = sprintf(
+       'CREATE DATABASE IF NOT EXIST %s CHARACTER SET %s COLLATE %s;',
+              $this->config['database'],
+              $this->config->get('charset', 'utf8'),
+              $this->config->get('collation', 'utf8_general_ci')
+         );
 
          $this->exec($sqlGeneric);
     }
@@ -38,7 +51,16 @@ class MysqlConnection extends PdoConnection
     */
     public function dropDatabase()
     {
-        return "";
+        /*
+         DROP SCHEMA IF EXISTS databaseName;
+        */
+
+        $sqlGeneric = sprintf(
+     'DROP DATABASE IF EXISTS %s;',
+            $this->config['database']
+        );
+
+        $this->exec($sqlGeneric);
     }
 
 
