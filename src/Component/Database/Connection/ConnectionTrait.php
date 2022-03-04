@@ -130,10 +130,10 @@ trait ConnectionTrait
     
     /**
      * @param $table
-     * @param string $criteria
+     * @param string $printColumns
      * @return void
     */
-    public function createTable($table, string $criteria)
+    public function createTable($table, string $printColumns)
     {
         $this->abortIfLogicException(__METHOD__);
     }

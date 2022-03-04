@@ -55,10 +55,7 @@ class MysqlConnection extends PdoConnection
          DROP SCHEMA IF EXISTS databaseName;
         */
 
-        $sqlGeneric = sprintf(
-     'DROP DATABASE IF EXISTS %s;',
-            $this->config['database']
-        );
+        $sqlGeneric = sprintf('DROP DATABASE IF EXISTS %s;', $this->config['database']);
 
         $this->exec($sqlGeneric);
     }
@@ -71,13 +68,14 @@ class MysqlConnection extends PdoConnection
      * @inheritDoc
      * @throws LogicException
     */
-    public function createTable($table, string $criteria)
+    public function createTable($table, string $printColumns)
     {
+         // todo get columns as array config and create table.
          $sqlGeneric = sprintf(
       "CREATE TABLE IF NOT EXISTS %s (%s) 
              ENGINE=%s DEFAULT CHARSET=%s;",
              $table,
-             $criteria,
+             $printColumns,
              $this->config['engine'],
              $this->config['charset']
          );

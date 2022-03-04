@@ -40,7 +40,7 @@ class OracleConnection extends PdoConnection
     /**
      * @inheritDoc
      */
-    public function createTable($table, string $criteria)
+    public function createTable($table, string $printColumns)
     {
         // TODO: Implement createTable() method.
     }

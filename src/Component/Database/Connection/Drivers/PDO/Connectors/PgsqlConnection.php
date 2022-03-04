@@ -77,15 +77,15 @@ class PgsqlConnection extends PdoConnection
      * @inheritDoc
      * @throws LogicException
      */
-    public function createTable($table, string $criteria)
+    public function createTable($table, string $printColumns)
     {
-        $criteria = ltrim($criteria, '(');
-        $criteria = rtrim($criteria, ')');
+        $printColumns = ltrim($printColumns, '(');
+        $printColumns = rtrim($printColumns, ')');
 
         $table = $this->getTableRealName($table);
 
 
-        $sqlGeneric = sprintf("CREATE TABLE IF NOT EXISTS %s (%s);", $table, $criteria);
+        $sqlGeneric = sprintf("CREATE TABLE IF NOT EXISTS %s (%s);", $table, $printColumns);
 
         $this->exec($sqlGeneric);
     }

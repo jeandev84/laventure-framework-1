@@ -97,7 +97,7 @@ class MysqliConnection implements MysqliConnectionInterface
     /**
      * @inheritDoc
      */
-    public function createTable($table, string $criteria)
+    public function createTable($table, string $printColumns)
     {
         // TODO: Implement createTable() method.
     }

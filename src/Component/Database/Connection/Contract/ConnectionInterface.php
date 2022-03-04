@@ -22,7 +22,7 @@ interface ConnectionInterface
 
     public function createDatabase();
     public function dropDatabase();
-    public function createTable($table, string $criteria);
+    public function createTable($table, string $printColumns);
     public function dropTable($table);
     public function dropIfExistsTable($table);
     public function truncateTable($table);
