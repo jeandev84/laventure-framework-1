@@ -50,12 +50,14 @@ class PdoConnection implements PdoConnectionInterface
                   $name = $config['connection'];
 
                   if (Connection::has($name)) {
-                      $this->setConnection($this->makeConnection([
-                          'dsn'      => $this->makeDSN($config),
-                          'username' => $this->getUsername(),
-                          'password' => $this->getPassword(),
-                          'options'  => $config['options'],
-                      ]));
+                      if (! empty($config['database'])) {
+                          $this->setConnection($this->makeConnection([
+                              'dsn'      => $this->makeDSN($config),
+                              'username' => $this->getUsername(),
+                              'password' => $this->getPassword(),
+                              'options'  => $config['options'],
+                          ]));
+                      }
                   }
 
               })();

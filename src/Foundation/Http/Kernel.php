@@ -234,7 +234,7 @@ class Kernel implements HttpKernelContract
                            $e->getMessage(),
                            $e->getLine(),
                            $e->getLine(),
-                           $fs->locate('storage/log/dev.log')
+                           $fs->locate('storage/temp/log/dev.log')
                        );
                        return $this->displayError($e, 'dev');
                      break;
